@@ -1,0 +1,169 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Users, IndianRupee, AlertCircle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import API_URL from '@/config';
+
+interface DashboardStats {
+  totalStudents: number;
+  todaysCollection: number;
+  totalPending: number;
+  monthlyStats: { name: string; total: number }[];
+}
+
+const Dashboard = () => {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalStudents: 0,
+    todaysCollection: 0,
+    totalPending: 0,
+    monthlyStats: [],
+  });
+
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statsRes, transactionsRes] = await Promise.all([
+          axios.get(`${API_URL}/api/stats`),
+          axios.get(`${API_URL}/api/transactions`)
+        ]);
+        setStats(statsRes.data);
+        setRecentTransactions(transactionsRes.data.slice(0, 5));
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const statCards = [
+    {
+      title: "Total Active Students",
+      value: stats.totalStudents,
+      icon: Users,
+      color: "text-blue-600",
+      bg: "bg-blue-100",
+    },
+    {
+      title: "Today's Collection",
+      value: `₹${stats.todaysCollection.toLocaleString()}`,
+      icon: IndianRupee,
+      color: "text-green-600",
+      bg: "bg-green-100",
+    },
+    {
+      title: "Total Pending Fees",
+      value: `₹${stats.totalPending.toLocaleString()}`,
+      icon: AlertCircle,
+      color: "text-red-600",
+      bg: "bg-red-100",
+    },
+  ];
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-slate-500">Overview of your institute's performance.</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {statCards.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index} className="hover:shadow-md transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-600">
+                  {stat.title}
+                </CardTitle>
+                <div className={`p-2 rounded-full ${stat.bg}`}>
+                  <Icon className={`h-4 w-4 ${stat.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Monthly Collection Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <div style={{ width: '100%', height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <BarChart data={stats.monthlyStats}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#888888" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <YAxis 
+                    stroke="#888888" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickFormatter={(value) => `₹${value}`} 
+                  />
+                  <Tooltip 
+                    cursor={{ fill: 'transparent' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Bar dataKey="total" fill="#0f172a" radius={[4, 4, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Transactions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+                  <tr>
+                    <th className="px-4 py-3">Student</th>
+                    <th className="px-4 py-3 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentTransactions.map((tx) => (
+                    <tr key={tx._id} className="bg-white border-b hover:bg-slate-50">
+                      <td className="px-4 py-3 font-medium">
+                        <div className="font-medium">{tx.studentId?.firstName} {tx.studentId?.lastName}</div>
+                        <div className="text-xs text-slate-500">{new Date(tx.date).toLocaleDateString()}</div>
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold text-green-600">₹{tx.amount}</td>
+                    </tr>
+                  ))}
+                  {recentTransactions.length === 0 && (
+                    <tr>
+                      <td colSpan={2} className="px-4 py-4 text-center text-slate-500">
+                        No recent transactions.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
