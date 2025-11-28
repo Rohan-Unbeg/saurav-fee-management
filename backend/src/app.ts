@@ -21,6 +21,9 @@ import xss from 'xss-clean';
 
 const app = express();
 
+// Trust proxy (Required for Render/Heroku)
+app.set('trust proxy', 1);
+
 // Connect to Database
 connectDB();
 
