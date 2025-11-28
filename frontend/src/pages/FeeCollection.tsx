@@ -5,6 +5,7 @@ import { Search, Printer, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import Modal from '@/components/ui/modal';
 import { Receipt } from '@/components/Receipt';
 import API_URL from '@/config';
@@ -24,12 +25,15 @@ const FeeCollection = () => {
     contentRef: receiptRef,
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     handleSearch();
   }, []);
 
   const handleSearch = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(`${API_URL}/api/students`);
       const filtered = response.data.filter((s: any) => 
         s.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -39,6 +43,8 @@ const FeeCollection = () => {
       setStudents(filtered);
     } catch (error) {
       console.error('Error searching students:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -145,58 +151,86 @@ const FeeCollection = () => {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {students.map(student => (
-          <Card key={student._id} className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-bold text-lg">{student.firstName} {student.lastName}</h3>
-                  <p className="text-sm text-slate-500">{student.courseId?.name} - {student.batch}</p>
+        {isLoading ? (
+          // Skeleton Loading Cards
+          [1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                  <Skeleton className="h-6 w-16 rounded" />
                 </div>
-                <div className={`px-2 py-1 rounded text-xs font-bold ${
-                  student.pendingAmount === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
-                  {student.pendingAmount === 0 ? 'PAID' : 'UNPAID'}
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between"><Skeleton className="h-4 w-20" /><Skeleton className="h-4 w-16" /></div>
+                  <div className="flex justify-between"><Skeleton className="h-4 w-20" /><Skeleton className="h-4 w-16" /></div>
+                  <div className="flex justify-between"><Skeleton className="h-4 w-20" /><Skeleton className="h-4 w-16" /></div>
                 </div>
-              </div>
-              
-              <div className="space-y-2 text-sm mb-4">
-                <div className="flex justify-between">
-                  <span>Total Fee:</span>
-                  <span className="font-medium">₹{student.totalFeeCommitted}</span>
+                <div className="flex gap-2">
+                  <Skeleton className="h-10 flex-1" />
+                  <Skeleton className="h-10 w-24" />
                 </div>
-                <div className="flex justify-between">
-                  <span>Paid:</span>
-                  <span className="font-medium text-green-600">₹{student.totalPaid}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Pending:</span>
-                  <span className="font-medium text-red-600">₹{student.pendingAmount}</span>
-                </div>
-              </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <>
+            {students.map(student => (
+              <Card key={student._id} className="cursor-pointer hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-bold text-lg">{student.firstName} {student.lastName}</h3>
+                      <p className="text-sm text-slate-500">{student.courseId?.name} - {student.batch}</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded text-xs font-bold ${
+                      student.pendingAmount === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }`}>
+                      {student.pendingAmount === 0 ? 'PAID' : 'UNPAID'}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex justify-between">
+                      <span>Total Fee:</span>
+                      <span className="font-medium">₹{student.totalFeeCommitted}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Paid:</span>
+                      <span className="font-medium text-green-600">₹{student.totalPaid}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Pending:</span>
+                      <span className="font-medium text-red-600">₹{student.pendingAmount}</span>
+                    </div>
+                  </div>
 
-              <div className="flex gap-2">
-                <Button 
-                  className="flex-1" 
-                  onClick={() => openPaymentModal(student)}
-                  disabled={student.pendingAmount === 0}
-                >
-                  Collect Fee
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => openHistoryModal(student)}
-                >
-                  History
-                </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      className="flex-1" 
+                      onClick={() => openPaymentModal(student)}
+                      disabled={student.pendingAmount === 0}
+                    >
+                      Collect Fee
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => openHistoryModal(student)}
+                    >
+                      History
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            {students.length === 0 && (
+              <div className="col-span-full text-center py-10 text-slate-500">
+                No students found.
               </div>
-            </CardContent>
-          </Card>
-        ))}
-        {students.length === 0 && (
-          <div className="col-span-full text-center py-10 text-slate-500">
-            No students found.
-          </div>
+            )}
+          </>
         )}
       </div>
 
