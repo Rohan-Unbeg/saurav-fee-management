@@ -61,19 +61,19 @@ router.get('/seed-demo', async (req, res) => {
       {
         firstName: 'Rahul', lastName: 'Sharma', dob: new Date('2005-05-15'), gender: 'Male',
         address: 'Shivaji Nagar, Pune', studentMobile: '9876543210', parentMobile: '9876543211',
-        courseId: createdCourses[0]._id, batch: 'Morning 8-9',
+        courseId: createdCourses[0]._id as any, batch: 'Morning 8-9',
         totalFeeCommitted: 4500, totalPaid: 2000, pendingAmount: 2500, status: 'Partial'
       },
       {
         firstName: 'Priya', lastName: 'Patil', dob: new Date('2006-08-20'), gender: 'Female',
         address: 'Kothrud, Pune', studentMobile: '9123456789', parentMobile: '9123456780',
-        courseId: createdCourses[1]._id, batch: 'Evening 6-7',
+        courseId: createdCourses[1]._id as any, batch: 'Evening 6-7',
         totalFeeCommitted: 3500, totalPaid: 3500, pendingAmount: 0, status: 'Paid'
       },
       {
         firstName: 'Amit', lastName: 'Verma', dob: new Date('2004-12-10'), gender: 'Male',
         address: 'Hadapsar, Pune', studentMobile: '9988776655', parentMobile: '9988776644',
-        courseId: createdCourses[2]._id, batch: 'Weekend',
+        courseId: createdCourses[2]._id as any, batch: 'Weekend',
         totalFeeCommitted: 6000, totalPaid: 0, pendingAmount: 6000, status: 'Unpaid'
       }
     ];
