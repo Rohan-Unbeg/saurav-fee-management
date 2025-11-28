@@ -1,5 +1,17 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { Plus, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import Modal from '@/components/ui/modal';
+import { Skeleton } from '@/components/ui/skeleton';
+import API_URL from '@/config';
+
+const Expenses = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [newExpense, setNewExpense] = useState({
     title: '',
     amount: '',
@@ -10,11 +22,14 @@
 
   const fetchExpenses = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(`${API_URL}/api/expenses`);
       setExpenses(response.data);
     } catch (error) {
       console.error('Error fetching expenses:', error);
       toast.error('Failed to load expenses');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,6 +81,83 @@
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value && !/^\d*\.?\d*$/.test(value)) return; // Allow decimals
+    setNewExpense({ ...newExpense, amount: value });
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Expense Management</h2>
+          <p className="text-slate-500">Track and manage your institute's expenses.</p>
+        </div>
+        <Button onClick={() => setIsModalOpen(true)} className="bg-red-600 hover:bg-red-700">
+          <Plus className="mr-2 h-4 w-4" /> Add Expense
+        </Button>
+      </div>
+
+      <div className="rounded-md border bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b">
+              <tr>
+                <th className="px-6 py-3">Date</th>
+                <th className="px-6 py-3">Title</th>
+                <th className="px-6 py-3">Category</th>
+                <th className="px-6 py-3 text-right">Amount</th>
+                <th className="px-6 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                [1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i} className="border-b">
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-48" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-6 w-20 rounded-full" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-16 ml-auto" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-8 w-8 ml-auto" /></td>
+                  </tr>
+                ))
+              ) : (
+                <>
+                  {expenses.map((expense) => (
+                    <tr key={expense._id} className="border-b hover:bg-slate-50">
+                      <td className="px-6 py-4">{new Date(expense.date).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">
+                        <div className="font-medium">{expense.title}</div>
+                        <div className="text-xs text-slate-500">{expense.description}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                          {expense.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right font-bold">₹{expense.amount}</td>
+                      <td className="px-6 py-4 text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(expense._id)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {expenses.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                        No expenses recorded.
+                      </td>
+                    </tr>
+                  )}
+                </>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title="Add New Expense"
       >
         <div className="space-y-4">
