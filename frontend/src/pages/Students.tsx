@@ -79,7 +79,7 @@ const Students = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Students</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Students</h2>
           <p className="text-slate-500">Manage your student records.</p>
         </div>
         <Button onClick={() => setIsAdmissionOpen(true)}>

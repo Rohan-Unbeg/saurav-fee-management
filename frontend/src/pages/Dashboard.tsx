@@ -130,7 +130,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h2>
         <p className="text-slate-500">Overview of your institute's performance.</p>
       </div>
 

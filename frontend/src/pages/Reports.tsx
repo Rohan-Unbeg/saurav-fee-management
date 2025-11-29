@@ -131,28 +131,31 @@ const Reports = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center border-b border-slate-200 pb-4">
-        <div className="flex space-x-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-4 gap-4">
+        <div className="flex flex-wrap gap-2 md:space-x-4">
           <Button 
             variant={activeTab === 'defaulters' ? 'default' : 'outline'}
             onClick={() => { setActiveTab('defaulters'); setPage(1); }}
+            size="sm"
           >
-            Defaulters List
+            Defaulters
           </Button>
           <Button 
             variant={activeTab === 'batch' ? 'default' : 'outline'}
             onClick={() => { setActiveTab('batch'); setPage(1); }}
+            size="sm"
           >
-            Batch-wise List
+            Batch-wise
           </Button>
           <Button 
             variant={activeTab === 'collection' ? 'default' : 'outline'}
             onClick={() => { setActiveTab('collection'); setPage(1); }}
+            size="sm"
           >
-            Collection Report
+            Collection
           </Button>
         </div>
-        <Button onClick={() => handlePrint()} variant="outline">
+        <Button onClick={() => handlePrint()} variant="outline" size="sm" className="w-full md:w-auto">
           <Printer className="mr-2 h-4 w-4" /> Print Report
         </Button>
       </div>
@@ -164,24 +167,26 @@ const Reports = () => {
       </div>
 
       {activeTab === 'collection' && (
-        <div className="flex gap-4 items-end">
-          <div>
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="w-full md:w-auto">
             <label className="text-sm font-medium text-slate-700">Start Date</label>
             <Input 
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
+              className="w-full"
             />
           </div>
-          <div>
+          <div className="w-full md:w-auto">
             <label className="text-sm font-medium text-slate-700">End Date</label>
             <Input 
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
+              className="w-full"
             />
           </div>
-          <Button onClick={() => fetchTransactions(1)}>Apply Filter</Button>
+          <Button onClick={() => fetchTransactions(1)} className="w-full md:w-auto">Apply Filter</Button>
         </div>
       )}
 

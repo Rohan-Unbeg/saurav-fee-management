@@ -102,7 +102,7 @@ const Expenses = () => {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Expense Management</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Expense Management</h2>
           <p className="text-slate-500">Track and manage your institute's expenses.</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)} className="bg-red-600 hover:bg-red-700">

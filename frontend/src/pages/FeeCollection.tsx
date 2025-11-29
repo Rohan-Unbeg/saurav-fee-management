@@ -159,17 +159,18 @@ const FeeCollection = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Fee Collection</CardTitle>
+          <CardTitle className="text-xl md:text-2xl">Fee Collection</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
             <Input 
               placeholder="Search by Name or Mobile..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(1)}
+              className="w-full"
             />
-            <Button onClick={() => handleSearch(1)}>
+            <Button onClick={() => handleSearch(1)} className="w-full md:w-auto">
               <Search className="mr-2 h-4 w-4" /> Search
             </Button>
           </div>

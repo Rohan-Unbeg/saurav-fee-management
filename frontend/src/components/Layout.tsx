@@ -12,11 +12,13 @@ const Layout = () => {
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center p-4 bg-white border-b sticky top-0 z-30">
-        <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)}>
+      <div className="md:hidden flex items-center p-4 bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30">
+        <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="text-slate-400 hover:text-white hover:bg-slate-800">
           <Menu className="h-6 w-6" />
         </Button>
-        <h1 className="ml-4 font-semibold text-lg">Saurav Institute</h1>
+        <h1 className="ml-4 text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          Saurav Institute
+        </h1>
       </div>
 
       <main className="md:ml-64 p-4 md:p-8 min-h-screen transition-all duration-300">

@@ -115,7 +115,7 @@ const Settings = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Settings</h2>
           <p className="text-slate-500">Manage courses, users, and system configurations.</p>
         </div>
       </div>
@@ -275,7 +275,7 @@ const BackupRestoreSection = () => {
         <CardTitle>Data Backup & Restore</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
           <Button onClick={async () => {
             try {
               const response = await axios.get(`${API_URL}/api/backup/export`);
@@ -291,11 +291,11 @@ const BackupRestoreSection = () => {
               console.error('Export failed:', error);
               toast.error('Export failed');
             }
-          }}>
+          }} className="w-full md:w-auto">
             Download Manual Backup (JSON)
           </Button>
           
-          <div className="relative">
+          <div className="relative w-full md:w-auto">
             <input
               type="file"
               accept=".json"
@@ -319,13 +319,13 @@ const BackupRestoreSection = () => {
                 reader.readAsText(file);
               }}
             />
-            <Button variant="outline">Upload Manual Backup (JSON)</Button>
+            <Button variant="outline" className="w-full md:w-auto">Upload Manual Backup (JSON)</Button>
           </div>
         </div>
 
         <div className="border-t pt-4">
           <h4 className="text-sm font-medium mb-3">Restore from Auto-Backup (Server)</h4>
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
             <select 
               className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
               value={selectedBackup}
@@ -353,6 +353,7 @@ const BackupRestoreSection = () => {
               variant="destructive" 
               onClick={handleRestore}
               disabled={!selectedBackup || isLoading}
+              className="w-full md:w-auto"
             >
               {isLoading ? 'Restoring...' : 'Restore Selected Backup'}
             </Button>
