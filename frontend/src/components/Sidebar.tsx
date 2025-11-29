@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, IndianRupee, FileText, Settings, LogOut, TrendingDown } from 'lucide-react';
+import { LayoutDashboard, Users, IndianRupee, FileText, Settings, LogOut, TrendingDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
@@ -51,7 +51,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </div>
           {/* Close button for mobile */}
           <button onClick={onClose} className="md:hidden text-blue-200 hover:text-white">
-            <LogOut className="h-5 w-5 rotate-180" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
