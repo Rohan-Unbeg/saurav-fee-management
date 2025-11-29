@@ -145,8 +145,8 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
       onSuccess();
     } catch (error: any) {
       console.error('Error saving student:', error);
-      const errorMsg = error.response?.data?.errors 
-        ? error.response.data.errors.map((e: any) => e.msg).join(', ')
+      const errorMsg = error.response?.data?.length // Zod returns array
+        ? error.response.data.map((e: any) => e.message).join(', ')
         : error.response?.data?.message || 'Failed to save student.';
       toast.error(errorMsg);
     }

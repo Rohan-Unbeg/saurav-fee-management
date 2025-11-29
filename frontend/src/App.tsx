@@ -27,7 +27,50 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-import { Toaster } from 'sonner';
+// Axios Response Interceptor for Global Error Handling
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle Network Errors
+    if (!error.response) {
+      toast.error('Network Error: Please check your internet connection.');
+      return Promise.reject(error);
+    }
+
+    const { status, data } = error.response;
+
+    // Handle 401 Unauthorized (Session Expired)
+    if (status === 401) {
+      // Only redirect if not already on login page to avoid loops
+      if (window.location.pathname !== '/login') {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+
+    // Handle 403 Forbidden
+    if (status === 403) {
+      toast.error('Access Denied: You do not have permission to perform this action.');
+    }
+
+    // Handle 500 Server Errors
+    if (status === 500) {
+      toast.error('Server Error: Something went wrong on our end. Please try again later.');
+    }
+
+    // Handle 404 Not Found (Global)
+    if (status === 404 && typeof data === 'string' && data.includes('Cannot')) {
+       // Only generic 404s, specific API 404s might be handled by components
+       // toast.error('Resource not found.');
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+import { Toaster, toast } from 'sonner';
 
 function App() {
   return (

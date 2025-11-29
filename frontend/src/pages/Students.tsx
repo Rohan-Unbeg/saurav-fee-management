@@ -69,9 +69,10 @@ const Students = () => {
       await axios.delete(`${API_URL}/api/students/${deleteId}`);
       toast.success('Student deleted successfully');
       fetchStudents();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting student:', error);
-      toast.error('Failed to delete student');
+      const errorMsg = error.response?.data?.message || 'Failed to delete student';
+      toast.error(errorMsg);
     }
   };
 

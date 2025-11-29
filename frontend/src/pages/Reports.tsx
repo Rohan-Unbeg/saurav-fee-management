@@ -131,7 +131,7 @@ const Reports = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-4 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-4 gap-4 no-print">
         <div className="flex flex-wrap gap-2 md:space-x-4">
           <Button 
             variant={activeTab === 'defaulters' ? 'default' : 'outline'}
@@ -156,18 +156,18 @@ const Reports = () => {
           </Button>
         </div>
         <Button onClick={() => handlePrint()} variant="outline" size="sm" className="w-full md:w-auto">
-          <Printer className="mr-2 h-4 w-4" /> Print Report
+          <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
         </Button>
       </div>
 
-      <div className="bg-primary/5 p-4 rounded-md text-primary text-sm mb-4">
+      <div className="bg-primary/5 p-4 rounded-md text-primary text-sm mb-4 no-print">
         {activeTab === 'defaulters' && "Showing all students who have pending fees."}
         {activeTab === 'batch' && "Showing student list filtered by batch. Use the search bar to filter."}
         {activeTab === 'collection' && "Showing all fee transactions within the selected date range."}
       </div>
 
       {activeTab === 'collection' && (
-        <div className="flex flex-col md:flex-row gap-4 items-end">
+        <div className="flex flex-col md:flex-row gap-4 items-end no-print">
           <div className="w-full md:w-auto">
             <label className="text-sm font-medium text-slate-700">Start Date</label>
             <Input 
@@ -190,20 +190,31 @@ const Reports = () => {
         </div>
       )}
 
-      <div ref={componentRef} className="p-4 bg-white">
-        <div className="mb-6 hidden print:block">
-          <h1 className="text-2xl font-bold text-center uppercase">Saurav Computer</h1>
-          <p className="text-center text-sm">Report Generated on: {new Date().toLocaleDateString()}</p>
+      <div ref={componentRef} className="print-container bg-white">
+        {/* Print Header */}
+        <div className="mb-8 hidden print:block text-center border-b-2 border-slate-800 pb-4">
+          <h1 className="text-3xl font-bold uppercase tracking-wider text-slate-900">Saurav Computer</h1>
+          <p className="text-sm text-slate-600 mt-1">Near Bus Stand, Main Road, City Name - 123456</p>
+          <p className="text-sm text-slate-600">Mobile: +91 98765 43210 | Email: info@sauravcomputer.com</p>
+          <div className="mt-4 pt-2 border-t border-slate-200 inline-block w-full">
+            <h2 className="text-xl font-semibold text-slate-800 uppercase">
+              {activeTab === 'defaulters' ? 'Pending Fee Report' : 
+               activeTab === 'batch' ? 'Student Batch Report' : 
+               'Fee Collection Report'}
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">Generated on: {new Date().toLocaleString()}</p>
+          </div>
         </div>
-        <Card className="print:shadow-none print:border-none">
-          <CardHeader>
+
+        <Card className="card-print-reset">
+          <CardHeader className="no-print">
             <CardTitle>
               {activeTab === 'defaulters' ? 'Pending Fee Report' : 
                activeTab === 'batch' ? 'Student Batch Report' : 
                'Fee Collection Report'}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 md:p-6 print:p-0">
             <div className="overflow-x-auto">
               {activeTab === 'collection' ? (
                 <table className="w-full text-sm text-left border-collapse">
@@ -325,11 +336,13 @@ const Reports = () => {
             </div>
           </CardContent>
         </Card>
-        <Pagination 
-          currentPage={page} 
-          totalPages={totalPages} 
-          onPageChange={(p) => setPage(p)} 
-        />
+        <div className="no-print">
+          <Pagination 
+            currentPage={page} 
+            totalPages={totalPages} 
+            onPageChange={(p) => setPage(p)} 
+          />
+        </div>
       </div>
     </div>
   );

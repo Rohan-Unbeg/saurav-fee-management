@@ -66,9 +66,10 @@ const Settings = () => {
       await axios.delete(`${API_URL}/api/courses/${deleteId}`);
       fetchCourses();
       toast.success('Course deleted');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting course:', error);
-      toast.error('Failed to delete course');
+      const errorMsg = error.response?.data?.message || 'Failed to delete course';
+      toast.error(errorMsg);
     }
   };
 
@@ -238,6 +239,7 @@ const BackupRestoreSection = () => {
   const [backups, setBackups] = useState<string[]>([]);
   const [selectedBackup, setSelectedBackup] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
 
   const fetchBackups = async () => {
     try {
@@ -252,10 +254,12 @@ const BackupRestoreSection = () => {
     fetchBackups();
   }, []);
 
-  const handleRestore = async () => {
+  const handleRestoreClick = () => {
     if (!selectedBackup) return;
-    if (!confirm('WARNING: This will replace ALL current data with the backup data. Are you sure?')) return;
+    setIsRestoreModalOpen(true);
+  };
 
+  const confirmRestore = async () => {
     setIsLoading(true);
     try {
       await axios.post(`${API_URL}/api/backup/restore/${selectedBackup}`);
@@ -266,106 +270,113 @@ const BackupRestoreSection = () => {
       toast.error('Restore failed');
     } finally {
       setIsLoading(false);
+      setIsRestoreModalOpen(false);
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Data Backup & Restore</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-4 items-center">
-          <Button onClick={async () => {
-            try {
-              const response = await axios.get(`${API_URL}/api/backup/export`);
-              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data));
-              const downloadAnchorNode = document.createElement('a');
-              downloadAnchorNode.setAttribute("href", dataStr);
-              downloadAnchorNode.setAttribute("download", "fee_system_backup.json");
-              document.body.appendChild(downloadAnchorNode);
-              downloadAnchorNode.click();
-              downloadAnchorNode.remove();
-              toast.success('Backup exported successfully');
-            } catch (error) {
-              console.error('Export failed:', error);
-              toast.error('Export failed');
-            }
-          }} className="w-full md:w-auto">
-            Download Manual Backup (JSON)
-          </Button>
-          
-          <div className="relative w-full md:w-auto">
-            <input
-              type="file"
-              accept=".json"
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                  try {
-                    const jsonData = JSON.parse(event.target?.result as string);
-                    await axios.post(`${API_URL}/api/backup/import`, jsonData);
-                    toast.success('Data imported successfully! Please refresh.');
-                    window.location.reload();
-                  } catch (error) {
-                    console.error('Import failed:', error);
-                    toast.error('Import failed. Invalid file format.');
-                  }
-                };
-                reader.readAsText(file);
-              }}
-            />
-            <Button variant="outline" className="w-full md:w-auto">Upload Manual Backup (JSON)</Button>
-          </div>
-        </div>
-
-        <div className="border-t pt-4">
-          <h4 className="text-sm font-medium mb-3">Restore from Auto-Backup (Server)</h4>
-          <div className="flex flex-col md:flex-row gap-4">
-            <select 
-              className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
-              value={selectedBackup}
-              onChange={(e) => setSelectedBackup(e.target.value)}
-            >
-              <option value="">Select a backup point...</option>
-              {backups.map((backup) => {
-                // Parse format: YYYY-MM-DDTHH-mm-ss-sssZ
-                // We need to keep the date part hyphens, and only replace time part hyphens
-                const parts = backup.split('T');
-                const datePart = parts[0];
-                const timePart = parts[1].replace(/-/g, ':').replace('Z', '');
-                // Reconstruct valid ISO string: YYYY-MM-DDTHH:mm:ss.sssZ (approx)
-                // Actually, just displaying it nicely is enough.
-                const displayDate = new Date(`${datePart}T${timePart}`).toLocaleString();
-                
-                return (
-                  <option key={backup} value={backup}>
-                    {displayDate !== 'Invalid Date' ? displayDate : backup}
-                  </option>
-                );
-              })}
-            </select>
-            <Button 
-              variant="destructive" 
-              onClick={handleRestore}
-              disabled={!selectedBackup || isLoading}
-              className="w-full md:w-auto"
-            >
-              {isLoading ? 'Restoring...' : 'Restore Selected Backup'}
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Data Backup & Restore</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <Button onClick={async () => {
+              try {
+                const response = await axios.get(`${API_URL}/api/backup/export`);
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "fee_system_backup.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                toast.success('Backup exported successfully');
+              } catch (error) {
+                console.error('Export failed:', error);
+                toast.error('Export failed');
+              }
+            }} className="w-full md:w-auto">
+              Download Manual Backup (JSON)
             </Button>
+            
+            <div className="relative w-full md:w-auto">
+              <input
+                type="file"
+                accept=".json"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  const reader = new FileReader();
+                  reader.onload = async (event) => {
+                    try {
+                      const jsonData = JSON.parse(event.target?.result as string);
+                      await axios.post(`${API_URL}/api/backup/import`, jsonData);
+                      toast.success('Data imported successfully! Please refresh.');
+                      window.location.reload();
+                    } catch (error) {
+                      console.error('Import failed:', error);
+                      toast.error('Import failed. Invalid file format.');
+                    }
+                  };
+                  reader.readAsText(file);
+                }}
+              />
+              <Button variant="outline" className="w-full md:w-auto">Upload Manual Backup (JSON)</Button>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-2">
-            Select a timestamp to restore the system to that state. This is irreversible.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
 
+          <div className="border-t pt-4">
+            <h4 className="text-sm font-medium mb-3">Restore from Auto-Backup (Server)</h4>
+            <div className="flex flex-col md:flex-row gap-4">
+              <select 
+                className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+                value={selectedBackup}
+                onChange={(e) => setSelectedBackup(e.target.value)}
+              >
+                <option value="">Select a backup point...</option>
+                {backups.map((backup) => {
+                  const parts = backup.split('T');
+                  const datePart = parts[0];
+                  const timePart = parts[1].replace(/-/g, ':').replace('Z', '');
+                  const displayDate = new Date(`${datePart}T${timePart}`).toLocaleString();
+                  
+                  return (
+                    <option key={backup} value={backup}>
+                      {displayDate !== 'Invalid Date' ? displayDate : backup}
+                    </option>
+                  );
+                })}
+              </select>
+              <Button 
+                variant="destructive" 
+                onClick={handleRestoreClick}
+                disabled={!selectedBackup || isLoading}
+                className="w-full md:w-auto"
+              >
+                {isLoading ? 'Restoring...' : 'Restore Selected Backup'}
+              </Button>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Select a timestamp to restore the system to that state. This is irreversible.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
+      <ConfirmModal
+        isOpen={isRestoreModalOpen}
+        onClose={() => setIsRestoreModalOpen(false)}
+        onConfirm={confirmRestore}
+        title="Restore System Backup"
+        message="WARNING: This will replace ALL current data with the selected backup. This action cannot be undone. Are you sure?"
+        variant="destructive"
+        confirmText="Restore Data"
+      />
+    </>
   );
 };
 
@@ -374,7 +385,9 @@ const UserManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '', role: 'staff' });
   const [loading, setLoading] = useState(false);
-  const { user: currentUser } = useAuth(); // We need to import useAuth
+  const [userDeleteId, setUserDeleteId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { user: currentUser } = useAuth();
 
   const fetchUsers = async () => {
     try {
@@ -407,111 +420,130 @@ const UserManagement = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+  const handleDeleteClick = (id: string) => {
+    setUserDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!userDeleteId) return;
     try {
-      await axios.delete(`${API_URL}/api/auth/users/${id}`);
+      await axios.delete(`${API_URL}/api/auth/users/${userDeleteId}`);
       toast.success('User deleted successfully');
       fetchUsers();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to delete user');
+    } finally {
+      setIsDeleteModalOpen(false);
     }
   };
 
   if (currentUser?.role !== 'admin') return null;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>User Management</CardTitle>
-        <Button onClick={() => setIsModalOpen(true)} size="sm">
-          <Plus className="mr-2 h-4 w-4" /> Add User
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-slate-500 uppercase bg-slate-50">
-              <tr>
-                <th className="px-6 py-3">Username</th>
-                <th className="px-6 py-3">Role</th>
-                <th className="px-6 py-3">Created At</th>
-                <th className="px-6 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="bg-white border-b hover:bg-slate-50">
-                  <td className="px-6 py-4 font-medium">{user.username}</td>
-                  <td className="px-6 py-4 capitalize">
-                    <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{new Date(user.createdAt).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-right">
-                    {user._id !== currentUser?.id && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                        onClick={() => handleDelete(user._id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Add New User"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input 
-              id="username" 
-              value={formData.username} 
-              onChange={(e) => setFormData({...formData, username: e.target.value})} 
-              required 
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              type="password"
-              value={formData.password} 
-              onChange={(e) => setFormData({...formData, password: e.target.value})} 
-              required 
-            />
-            <p className="text-xs text-slate-500">Must be 8+ chars, 1 uppercase, 1 number.</p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <select
-              id="role"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              value={formData.role}
-              onChange={(e) => setFormData({...formData, role: e.target.value})}
-            >
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Creating...' : 'Create User'}
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>User Management</CardTitle>
+          <Button onClick={() => setIsModalOpen(true)} size="sm">
+            <Plus className="mr-2 h-4 w-4" /> Add User
           </Button>
-        </form>
-      </Modal>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+                <tr>
+                  <th className="px-6 py-3">Username</th>
+                  <th className="px-6 py-3">Role</th>
+                  <th className="px-6 py-3">Created At</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user._id} className="bg-white border-b hover:bg-slate-50">
+                    <td className="px-6 py-4 font-medium">{user.username}</td>
+                    <td className="px-6 py-4 capitalize">
+                      <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-right">
+                      {user._id !== currentUser?.id && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => handleDeleteClick(user._id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Add New User"
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input 
+                id="username" 
+                value={formData.username} 
+                onChange={(e) => setFormData({...formData, username: e.target.value})} 
+                required 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input 
+                id="password" 
+                type="password"
+                value={formData.password} 
+                onChange={(e) => setFormData({...formData, password: e.target.value})} 
+                required 
+              />
+              <p className="text-xs text-slate-500">Must be 8+ chars, 1 uppercase, 1 number.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <select
+                id="role"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={formData.role}
+                onChange={(e) => setFormData({...formData, role: e.target.value})}
+              >
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Creating...' : 'Create User'}
+            </Button>
+          </form>
+        </Modal>
+      </Card>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        variant="destructive"
+        confirmText="Delete User"
+      />
+    </>
   );
 };
 

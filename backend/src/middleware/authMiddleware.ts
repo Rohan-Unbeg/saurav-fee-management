@@ -22,7 +22,8 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
-  } catch (error) {
-    res.status(403).json({ message: 'Invalid token.' });
+  } catch (error: any) {
+    console.error('JWT Verification Error:', error.message);
+    res.status(403).json({ message: 'Invalid token.', error: error.message });
   }
 };

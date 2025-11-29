@@ -11,7 +11,7 @@ export const createStudentSchema = z.object({
     parentMobile: z.string().regex(/^[0-9]{10}$/, 'Parent mobile number must be exactly 10 digits'),
     courseId: z.string().min(1, 'Course ID is required'),
     batch: z.string().min(1, 'Batch is required'),
-    totalFeeCommitted: z.number().min(0, 'Total fee cannot be negative'),
+    totalFeeCommitted: z.coerce.number().min(0, 'Total fee cannot be negative'),
     admissionDate: z.string().optional().transform((str) => str ? new Date(str) : new Date()),
   }),
 });
@@ -27,7 +27,7 @@ export const updateStudentSchema = z.object({
     parentMobile: z.string().regex(/^[0-9]{10}$/).optional(),
     courseId: z.string().optional(),
     batch: z.string().optional(),
-    totalFeeCommitted: z.number().min(0).optional(),
+    totalFeeCommitted: z.coerce.number().min(0).optional(),
   }),
   params: z.object({
     id: z.string().min(1, 'Student ID is required'),

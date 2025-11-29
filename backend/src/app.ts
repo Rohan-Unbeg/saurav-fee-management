@@ -14,6 +14,8 @@ import expenseRoutes from './routes/expenseRoutes';
 import backupRoutes from './routes/backupRoutes';
 import seedRoutes from './routes/seedRoutes';
 import { authenticateToken } from './middleware/authMiddleware';
+import { globalErrorHandler } from './middleware/errorMiddleware';
+import { AppError } from './utils/AppError';
 
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -32,7 +34,12 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*', // Allow frontend origin
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Security Middleware
 app.use(helmet({
@@ -49,8 +56,6 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Middleware
-app.use(cors());
 app.use(express.json({ limit: '10kb' })); // Limit body size
 const morganFormat = ':method :url :status :res[content-length] - :response-time ms';
 
@@ -80,6 +85,14 @@ app.use('/api/stats', authenticateToken, statsRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/seed', seedRoutes);
+
+// Handle Unhandled Routes
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+// Global Error Handler
+app.use(globalErrorHandler);
 
 export default app;
 // Trigger restart 2

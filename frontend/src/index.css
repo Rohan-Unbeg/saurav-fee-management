@@ -163,3 +163,62 @@
         @apply bg-background text-foreground;
     }
 }
+
+@media print {
+    @page {
+        margin: 10mm;
+        size: A4;
+    }
+
+    body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    /* Hide non-printable elements */
+    .no-print, 
+    button, 
+    nav, 
+    aside, 
+    .sidebar,
+    .header-actions {
+        display: none !important;
+    }
+
+    /* Ensure full width and clean layout */
+    .print-container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Table Styling for Print */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 12px !important;
+    }
+
+    th, td {
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+        text-align: left !important;
+    }
+
+    th {
+        background-color: #f3f4f6 !important; /* slate-100 */
+        font-weight: bold !important;
+        color: black !important;
+    }
+
+    /* Remove Card styling */
+    .card-print-reset {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+}

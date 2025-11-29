@@ -86,9 +86,10 @@ const Expenses = () => {
       await axios.delete(`${API_URL}/api/expenses/${deleteId}`);
       fetchExpenses();
       toast.success('Expense deleted');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting expense:', error);
-      toast.error('Failed to delete expense');
+      const errorMsg = error.response?.data?.message || 'Failed to delete expense';
+      toast.error(errorMsg);
     }
   };
 

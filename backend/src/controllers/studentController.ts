@@ -81,7 +81,7 @@ export const createStudent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    const finalFee = totalFeeCommitted || course.standardFee;
+    const finalFee = Number(totalFeeCommitted) || course.standardFee;
     const pendingAmount = finalFee; // Initially pending is total
 
     const student = new Student({
@@ -119,11 +119,15 @@ export const updateStudent = async (req: Request, res: Response) => {
         updateData.photoUrl = `/uploads/${req.file.filename}`;
       }
       
+      // Capture old fee before applying updates
+      const oldFee = student.totalFeeCommitted;
+      
       Object.assign(student, updateData);
       
-      if (req.body.totalFeeCommitted) {
-        const oldFee = student.totalFeeCommitted;
+      // Check if fee has changed
+      if (req.body.totalFeeCommitted !== undefined) {
         const newFee = Number(req.body.totalFeeCommitted);
+        // We compare against the *captured* oldFee, not the one in 'student' which might have been updated by Object.assign
         if (oldFee !== newFee) {
           student.totalFeeCommitted = newFee;
           student.pendingAmount = newFee - student.totalPaid;
