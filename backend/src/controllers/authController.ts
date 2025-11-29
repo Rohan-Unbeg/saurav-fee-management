@@ -77,10 +77,16 @@ export const deleteUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Cannot delete your own account' });
     }
 
-    const user = await User.findByIdAndDelete(id);
-    if (!user) {
+    const userToDelete = await User.findById(id);
+    if (!userToDelete) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    if (userToDelete.isSuperAdmin) {
+      return res.status(403).json({ message: 'Cannot delete Super Admin' });
+    }
+
+    await User.findByIdAndDelete(id);
 
     await logAudit('DELETE', 'User', id, (req as any).user.id);
 
