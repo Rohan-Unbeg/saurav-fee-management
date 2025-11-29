@@ -12,6 +12,7 @@ import statsRoutes from './routes/statsRoutes';
 import authRoutes from './routes/authRoutes';
 import expenseRoutes from './routes/expenseRoutes';
 import backupRoutes from './routes/backupRoutes';
+import seedRoutes from './routes/seedRoutes';
 import { authenticateToken } from './middleware/authMiddleware';
 
 import helmet from 'helmet';
@@ -78,5 +79,7 @@ app.use('/api/transactions', authenticateToken, transactionRoutes);
 app.use('/api/stats', authenticateToken, statsRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/backup', backupRoutes);
+app.use('/api/seed', seedRoutes);
 
 export default app;
+// Trigger restart 2

@@ -12,6 +12,13 @@ import { registerSchema, loginSchema } from '../validators/authValidators';
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
 
+import { authenticateToken } from '../middleware/authMiddleware';
+import { checkRole } from '../middleware/checkRole';
+import { getUsers, deleteUser } from '../controllers/authController';
+
+router.get('/users', authenticateToken, checkRole(['admin']), getUsers);
+router.delete('/users/:id', authenticateToken, checkRole(['admin']), deleteUser);
+
 // Temporary Seed Route (For initial setup)
 router.get('/seed', async (req, res) => {
   try {

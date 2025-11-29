@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import Modal from '@/components/ui/modal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Skeleton } from '@/components/ui/skeleton';
+import Pagination from '@/components/ui/Pagination';
 import API_URL from '@/config';
 
 const Expenses = () => {
@@ -23,11 +24,16 @@ const Expenses = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const fetchExpenses = async () => {
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchExpenses = async (pageNum = 1) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_URL}/api/expenses`);
-      setExpenses(response.data);
+      const response = await axios.get(`${API_URL}/api/expenses?page=${pageNum}&limit=10`);
+      setExpenses(response.data.data);
+      setTotalPages(response.data.totalPages);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error fetching expenses:', error);
       toast.error('Failed to load expenses');
@@ -37,8 +43,8 @@ const Expenses = () => {
   };
 
   useEffect(() => {
-    fetchExpenses();
-  }, []);
+    fetchExpenses(page);
+  }, [page]);
 
   const handleCreate = async () => {
     if (!newExpense.title.trim()) {
@@ -162,6 +168,12 @@ const Expenses = () => {
           </table>
         </div>
       </div>
+      
+      <Pagination 
+        currentPage={page} 
+        totalPages={totalPages} 
+        onPageChange={(p) => setPage(p)} 
+      />
 
       <Modal
         isOpen={isModalOpen}

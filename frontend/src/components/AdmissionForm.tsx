@@ -32,6 +32,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
     batch: student?.batch || '',
     admissionDate: student?.admissionDate ? new Date(student.admissionDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     totalFeeCommitted: student?.totalFeeCommitted || 0,
+    nextInstallmentDate: student?.nextInstallmentDate ? new Date(student.nextInstallmentDate).toISOString().split('T')[0] : '',
     photo: null as File | null,
   });
 
@@ -247,7 +248,34 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
         </div>
         <div className="space-y-2">
           <Label htmlFor="batch">Batch</Label>
-          <Input id="batch" name="batch" placeholder="e.g. May 2025" value={formData.batch} onChange={handleChange} className={errors.batch ? 'border-red-500' : ''} />
+          <div className="flex gap-2">
+            <select
+              className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
+              value={formData.batch.split(' ')[0] || ''}
+              onChange={(e) => {
+                const year = formData.batch.split(' ')[1] || new Date().getFullYear();
+                setFormData({ ...formData, batch: `${e.target.value} ${year}` });
+              }}
+            >
+              <option value="">Month</option>
+              {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+            <select
+              className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
+              value={formData.batch.split(' ')[1] || ''}
+              onChange={(e) => {
+                const month = formData.batch.split(' ')[0] || 'January';
+                setFormData({ ...formData, batch: `${month} ${e.target.value}` });
+              }}
+            >
+              <option value="">Year</option>
+              {[2024, 2025, 2026, 2027].map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
           {errors.batch && <p className="text-xs text-red-500">{errors.batch}</p>}
         </div>
       </div>
@@ -262,6 +290,19 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
           className={errors.totalFeeCommitted ? 'border-red-500' : ''}
         />
         {errors.totalFeeCommitted && <p className="text-xs text-red-500">{errors.totalFeeCommitted}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="nextInstallmentDate">Next Installment Date (Optional)</Label>
+        <Input 
+          id="nextInstallmentDate" 
+          name="nextInstallmentDate" 
+          type="date"
+          value={formData.nextInstallmentDate} 
+          onChange={handleChange} 
+          min={new Date().toISOString().split('T')[0]}
+        />
+        <p className="text-xs text-slate-500">When is the next payment expected?</p>
       </div>
 
       <div className="space-y-2">

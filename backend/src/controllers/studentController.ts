@@ -6,8 +6,47 @@ import { AuthRequest } from '../middleware/authMiddleware';
 
 export const getStudents = async (req: Request, res: Response) => {
   try {
-    const students = await Student.find({ isDeleted: false }).populate('courseId', 'name');
+    // Check if pagination params are provided
+    if (req.query.page || req.query.limit) {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const skip = (page - 1) * limit;
+
+      const search = req.query.search as string;
+      const filter: any = { isDeleted: false };
+
+      if (search) {
+        const searchRegex = new RegExp(search, 'i');
+        filter.$or = [
+          { firstName: searchRegex },
+          { lastName: searchRegex },
+          { studentMobile: searchRegex }
+        ];
+      }
+
+      const students = await Student.find(filter)
+        .populate('courseId', 'name')
+        .skip(skip)
+        .limit(limit)
+        .sort(search ? { firstName: 1 } : { createdAt: -1 });
+        
+      const total = await Student.countDocuments(filter);
+
+      const response = {
+        data: students,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit)
+      };
+      return res.json(response);
+    }
+
+    // Default behavior: Return all students (Backward Compatibility)
+    const students = await Student.find({ isDeleted: false })
+      .populate('courseId', 'name')
+      .sort({ createdAt: -1 });
     res.json(students);
+
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }

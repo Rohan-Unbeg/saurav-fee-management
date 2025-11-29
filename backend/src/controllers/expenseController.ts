@@ -3,8 +3,23 @@ import Expense from '../models/Expense';
 
 export const getExpenses = async (req: Request, res: Response) => {
   try {
-    const expenses = await Expense.find().sort({ date: -1 });
-    res.json(expenses);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const expenses = await Expense.find()
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Expense.countDocuments();
+
+    res.json({
+      data: expenses,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }

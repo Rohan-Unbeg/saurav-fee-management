@@ -58,3 +58,34 @@ export const login = async (req: Request, res: Response) => {
     res.status(500).json({ message: (error as Error).message });
   }
 };
+
+export const getUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await User.find({}, '-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // Prevent deleting self
+    if (id === (req as any).user.id) {
+      return res.status(400).json({ message: 'Cannot delete your own account' });
+    }
+
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await logAudit('DELETE', 'User', id, (req as any).user.id);
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};

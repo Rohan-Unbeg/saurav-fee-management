@@ -10,6 +10,7 @@ import Modal from '@/components/ui/modal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { toast } from 'sonner';
 import API_URL from '@/config';
+import { useAuth } from '@/context/AuthContext';
 
 interface Course {
   _id: string;
@@ -115,8 +116,15 @@ const Settings = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
-          <p className="text-slate-500">Manage courses and system configurations.</p>
+          <p className="text-slate-500">Manage courses, users, and system configurations.</p>
         </div>
+      </div>
+
+      {/* User Management Section - Only for Admins */}
+      <UserManagement />
+
+      <div className="flex justify-between items-center mt-8">
+        <h3 className="text-xl font-semibold">Course Management</h3>
         <Button onClick={openNewCourseModal}>
           <Plus className="mr-2 h-4 w-4" /> Add Course
         </Button>
@@ -274,6 +282,152 @@ const Settings = () => {
         confirmText="Delete"
       />
     </div>
+  );
+};
+
+const UserManagement = () => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ username: '', password: '', role: 'staff' });
+  const [loading, setLoading] = useState(false);
+  const { user: currentUser } = useAuth(); // We need to import useAuth
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/auth/users`);
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser?.role === 'admin') {
+      fetchUsers();
+    }
+  }, [currentUser]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await axios.post(`${API_URL}/api/auth/register`, formData);
+      toast.success('User created successfully');
+      setIsModalOpen(false);
+      setFormData({ username: '', password: '', role: 'staff' });
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to create user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await axios.delete(`${API_URL}/api/auth/users/${id}`);
+      toast.success('User deleted successfully');
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  if (currentUser?.role !== 'admin') return null;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>User Management</CardTitle>
+        <Button onClick={() => setIsModalOpen(true)} size="sm">
+          <Plus className="mr-2 h-4 w-4" /> Add User
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+              <tr>
+                <th className="px-6 py-3">Username</th>
+                <th className="px-6 py-3">Role</th>
+                <th className="px-6 py-3">Created At</th>
+                <th className="px-6 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user._id} className="bg-white border-b hover:bg-slate-50">
+                  <td className="px-6 py-4 font-medium">{user.username}</td>
+                  <td className="px-6 py-4 capitalize">
+                    <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">{new Date(user.createdAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-right">
+                    {user._id !== currentUser?.id && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                        onClick={() => handleDelete(user._id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Add New User"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input 
+              id="username" 
+              value={formData.username} 
+              onChange={(e) => setFormData({...formData, username: e.target.value})} 
+              required 
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input 
+              id="password" 
+              type="password"
+              value={formData.password} 
+              onChange={(e) => setFormData({...formData, password: e.target.value})} 
+              required 
+            />
+            <p className="text-xs text-slate-500">Must be 8+ chars, 1 uppercase, 1 number.</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <select
+              id="role"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={formData.role}
+              onChange={(e) => setFormData({...formData, role: e.target.value})}
+            >
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Creating...' : 'Create User'}
+          </Button>
+        </form>
+      </Modal>
+    </Card>
   );
 };
 

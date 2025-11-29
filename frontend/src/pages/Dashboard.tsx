@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Users, IndianRupee, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, IndianRupee, AlertCircle, ArrowRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import API_URL from '@/config';
 
 interface DashboardStats {
@@ -30,10 +32,12 @@ const Dashboard = () => {
       try {
         const [statsRes, transactionsRes] = await Promise.all([
           axios.get(`${API_URL}/api/stats`),
-          axios.get(`${API_URL}/api/transactions`)
+          axios.get(`${API_URL}/api/transactions?limit=5`)
         ]);
         setStats(statsRes.data);
-        setRecentTransactions(transactionsRes.data.slice(0, 5));
+        // Handle paginated response
+        const txData = transactionsRes.data.data || transactionsRes.data;
+        setRecentTransactions(Array.isArray(txData) ? txData.slice(0, 5) : []);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -159,7 +163,7 @@ const Dashboard = () => {
           <CardContent className="pl-2">
             <div style={{ width: '100%', height: 300 }}>
               {stats.monthlyStats.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                   <BarChart data={stats.monthlyStats}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis 
@@ -193,8 +197,13 @@ const Dashboard = () => {
         </Card>
 
         <Card className="col-span-3">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
+            <Link to="/reports" state={{ activeTab: 'collection' }}>
+              <Button variant="ghost" size="sm" className="text-xs">
+                View All <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">

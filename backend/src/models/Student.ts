@@ -16,6 +16,7 @@ export interface IStudent extends Document {
   totalPaid: number;
   pendingAmount: number;
   status: 'Paid' | 'Partial' | 'Unpaid';
+  nextInstallmentDate?: Date;
   isDeleted: boolean;
 }
 
@@ -35,6 +36,7 @@ const StudentSchema: Schema = new Schema({
   totalPaid: { type: Number, default: 0 },
   pendingAmount: { type: Number, required: true },
   status: { type: String, enum: ['Paid', 'Partial', 'Unpaid'], default: 'Unpaid' },
+  nextInstallmentDate: { type: Date },
   isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 

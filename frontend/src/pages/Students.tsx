@@ -8,26 +8,35 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Modal from '@/components/ui/modal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import AdmissionForm from '@/components/AdmissionForm';
+import Pagination from '@/components/ui/Pagination';
 import { toast } from 'sonner';
 import API_URL from '@/config';
 
 const Students = () => {
   const [students, setStudents] = useState<any[]>([]);
-  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdmissionOpen, setIsAdmissionOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchStudents = async () => {
+  const fetchStudents = async (pageNum = 1, search = searchQuery) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_URL}/api/students`);
-      setStudents(response.data);
-      setFilteredStudents(response.data);
+      let url = `${API_URL}/api/students?page=${pageNum}&limit=10`;
+      if (search) {
+        url += `&search=${encodeURIComponent(search)}`;
+      }
+
+      const response = await axios.get(url);
+      setStudents(response.data.data);
+      setTotalPages(response.data.totalPages);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error fetching students:', error);
     } finally {
@@ -36,19 +45,18 @@ const Students = () => {
   };
 
   useEffect(() => {
-    fetchStudents();
-  }, []);
+    // Debounce search
+    const timer = setTimeout(() => {
+      setPage(1); // Reset to page 1 on search change
+      fetchStudents(1, searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
-    const lowerQuery = searchQuery.toLowerCase();
-    const filtered = students.filter(student => 
-      student.firstName.toLowerCase().includes(lowerQuery) ||
-      student.lastName.toLowerCase().includes(lowerQuery) ||
-      student.studentMobile.includes(lowerQuery) ||
-      student.courseId?.name.toLowerCase().includes(lowerQuery)
-    );
-    setFilteredStudents(filtered);
-  }, [searchQuery, students]);
+    fetchStudents(page);
+  }, [page]);
 
   const handleDeleteClick = (id: string) => {
     setDeleteId(id);
@@ -122,7 +130,7 @@ const Students = () => {
                   ))
                 ) : (
                   <>
-                    {filteredStudents.map((student) => (
+                    {students.map((student) => (
                       <tr key={student._id} className="bg-white border-b hover:bg-slate-50">
                         <td className="px-6 py-4 font-medium text-slate-900">
                           <div className="flex items-center gap-3">
@@ -181,7 +189,7 @@ const Students = () => {
                         </td>
                       </tr>
                     ))}
-                    {filteredStudents.length === 0 && (
+                    {students.length === 0 && (
                       <tr>
                         <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
                           No students found matching "{searchQuery}"
@@ -194,7 +202,14 @@ const Students = () => {
             </table>
           </div>
         </CardContent>
+
       </Card>
+
+      <Pagination 
+        currentPage={page} 
+        totalPages={totalPages} 
+        onPageChange={(p) => setPage(p)} 
+      />
 
       <Modal
         isOpen={isAdmissionOpen}

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Modal from '@/components/ui/modal';
 import { Receipt } from '@/components/Receipt';
+import Pagination from '@/components/ui/Pagination';
 import API_URL from '@/config';
 
 const FeeCollection = () => {
@@ -26,22 +27,35 @@ const FeeCollection = () => {
     contentRef: receiptRef,
   });
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    handleSearch();
-  }, []);
+    handleSearch(page);
+  }, [page]);
 
-  const handleSearch = async () => {
+  const handleSearch = async (pageNum = 1) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_URL}/api/students`);
-      const filtered = response.data.filter((s: any) => 
-        s.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.studentMobile.includes(searchQuery)
-      );
-      setStudents(filtered);
+      // Note: Search should ideally be server-side. 
+      // For now, we are just paginating the list. Search will only work on the current page if we don't update backend.
+      // However, since we are fetching *all* students in the original code, we should switch to server-side search/pagination.
+      
+      let url = `${API_URL}/api/students?page=${pageNum}&limit=9`; // Limit 9 for grid layout (3x3)
+      
+      if (searchQuery) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
+      }
+      
+      const response = await axios.get(url);
+      
+      if (response.data.data) {
+        setStudents(response.data.data);
+        setTotalPages(response.data.totalPages);
+        setPage(pageNum);
+      }
+
     } catch (error) {
       console.error('Error searching students:', error);
     } finally {
@@ -58,9 +72,14 @@ const FeeCollection = () => {
 
   const loadHistory = async (studentId: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/transactions?studentId=${studentId}`);
-      setStudentHistory(response.data);
-      return response.data;
+      // Fetch up to 100 transactions for history to avoid pagination in modal for now
+      const response = await axios.get(`${API_URL}/api/transactions?studentId=${studentId}&limit=100`);
+      
+      // Handle paginated response structure
+      const historyData = response.data.data || response.data;
+      setStudentHistory(Array.isArray(historyData) ? historyData : []);
+      
+      return historyData;
     } catch (error) {
       console.error('Error loading history:', error);
       return [];
@@ -70,6 +89,11 @@ const FeeCollection = () => {
   const handlePayment = async () => {
     if (!selectedStudent) return;
     
+    if (Number(paymentAmount) < 100) {
+      toast.error('Minimum payment amount is ₹100');
+      return;
+    }
+
     if (Number(paymentAmount) > selectedStudent.pendingAmount) {
       toast.error('Amount cannot exceed pending balance');
       return;
@@ -143,9 +167,9 @@ const FeeCollection = () => {
               placeholder="Search by Name or Mobile..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch(1)}
             />
-            <Button onClick={handleSearch}>
+            <Button onClick={() => handleSearch(1)}>
               <Search className="mr-2 h-4 w-4" /> Search
             </Button>
           </div>
@@ -335,9 +359,17 @@ const FeeCollection = () => {
             <Receipt 
               transaction={lastTransaction} 
               student={selectedStudent} 
+              history={studentHistory.filter(h => h._id !== lastTransaction._id)}
             />
           )}
         </div>
+      </div>
+      <div className="mt-4">
+        <Pagination 
+          currentPage={page} 
+          totalPages={totalPages} 
+          onPageChange={(p) => setPage(p)} 
+        />
       </div>
     </div>
   );

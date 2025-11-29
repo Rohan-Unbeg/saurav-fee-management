@@ -9,17 +9,36 @@ import { AuthRequest } from '../middleware/authMiddleware';
 export const getTransactions = async (req: Request, res: Response) => {
   try {
     const { studentId, startDate, endDate } = req.query;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
     const filter: any = {};
     
     if (studentId) filter.studentId = studentId;
     if (startDate && endDate) {
+      const end = new Date(endDate as string);
+      end.setHours(23, 59, 59, 999);
       filter.date = {
         $gte: new Date(startDate as string),
-        $lte: new Date(endDate as string)
+        $lte: end
       };
     }
-    const transactions = await Transaction.find(filter).populate('studentId', 'firstName lastName').sort({ date: -1 });
-    res.json(transactions);
+
+    const transactions = await Transaction.find(filter)
+      .populate('studentId', 'firstName lastName')
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Transaction.countDocuments(filter);
+
+    res.json({
+      data: transactions,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
@@ -32,6 +51,10 @@ export const createTransaction = async (req: Request, res: Response) => {
     const student = await Student.findById(studentId);
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
+    }
+
+    if (amount < 100) {
+      return res.status(400).json({ message: 'Minimum transaction amount is ₹100' });
     }
 
     if (amount > student.pendingAmount) {
