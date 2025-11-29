@@ -1,0 +1,11 @@
+[
+  {
+    "_id": "692aa6666e0b7166d4d595ad",
+    "username": "adminuser",
+    "password": "$2b$10$gbUlkDLQc.JfxBuz0c1mieU3pBdA/R8V5IGkg.ZWjbcS0ZOgVFVYK",
+    "role": "admin",
+    "createdAt": "2025-11-29T07:53:10.950Z",
+    "updatedAt": "2025-11-29T07:53:10.950Z",
+    "__v": 0
+  }
+]

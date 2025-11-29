@@ -1,0 +1,13 @@
+[
+  {
+    "_id": "692996b6890f79f658ad6f8f",
+    "title": "rent",
+    "amount": 10000,
+    "category": "Rent",
+    "date": "2025-11-28T00:00:00.000Z",
+    "description": "",
+    "createdAt": "2025-11-28T12:33:58.953Z",
+    "updatedAt": "2025-11-28T12:33:58.953Z",
+    "__v": 0
+  }
+]

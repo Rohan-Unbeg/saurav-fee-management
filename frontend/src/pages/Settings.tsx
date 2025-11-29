@@ -176,60 +176,9 @@ const Settings = () => {
 
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Data Backup & Restore</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <Button onClick={async () => {
-              try {
-                const response = await axios.get(`${API_URL}/api/backup/export`);
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "fee_system_backup.json");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-                toast.success('Backup exported successfully');
-              } catch (error) {
-                console.error('Export failed:', error);
-                toast.error('Export failed');
-              }
-            }}>
-              Export Data (JSON)
-            </Button>
-            
-            <div className="relative">
-              <input
-                type="file"
-                accept=".json"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  
-                  const reader = new FileReader();
-                  reader.onload = async (event) => {
-                    try {
-                      const jsonData = JSON.parse(event.target?.result as string);
-                      await axios.post(`${API_URL}/api/backup/import`, jsonData);
-                      toast.success('Data imported successfully! Please refresh.');
-                      fetchCourses();
-                    } catch (error) {
-                      console.error('Import failed:', error);
-                      toast.error('Import failed. Invalid file format.');
-                    }
-                  };
-                  reader.readAsText(file);
-                }}
-              />
-              <Button variant="outline">Import Data (JSON)</Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
+
+      <BackupRestoreSection />
 
       <Modal
         isOpen={isModalOpen}
@@ -282,6 +231,140 @@ const Settings = () => {
         confirmText="Delete"
       />
     </div>
+  );
+};
+
+const BackupRestoreSection = () => {
+  const [backups, setBackups] = useState<string[]>([]);
+  const [selectedBackup, setSelectedBackup] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchBackups = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/backup/list`);
+      setBackups(response.data);
+    } catch (error) {
+      console.error('Error fetching backups:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBackups();
+  }, []);
+
+  const handleRestore = async () => {
+    if (!selectedBackup) return;
+    if (!confirm('WARNING: This will replace ALL current data with the backup data. Are you sure?')) return;
+
+    setIsLoading(true);
+    try {
+      await axios.post(`${API_URL}/api/backup/restore/${selectedBackup}`);
+      toast.success('System restored successfully! Please refresh.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Restore failed:', error);
+      toast.error('Restore failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Data Backup & Restore</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex gap-4 items-center">
+          <Button onClick={async () => {
+            try {
+              const response = await axios.get(`${API_URL}/api/backup/export`);
+              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data));
+              const downloadAnchorNode = document.createElement('a');
+              downloadAnchorNode.setAttribute("href", dataStr);
+              downloadAnchorNode.setAttribute("download", "fee_system_backup.json");
+              document.body.appendChild(downloadAnchorNode);
+              downloadAnchorNode.click();
+              downloadAnchorNode.remove();
+              toast.success('Backup exported successfully');
+            } catch (error) {
+              console.error('Export failed:', error);
+              toast.error('Export failed');
+            }
+          }}>
+            Download Manual Backup (JSON)
+          </Button>
+          
+          <div className="relative">
+            <input
+              type="file"
+              accept=".json"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                  try {
+                    const jsonData = JSON.parse(event.target?.result as string);
+                    await axios.post(`${API_URL}/api/backup/import`, jsonData);
+                    toast.success('Data imported successfully! Please refresh.');
+                    window.location.reload();
+                  } catch (error) {
+                    console.error('Import failed:', error);
+                    toast.error('Import failed. Invalid file format.');
+                  }
+                };
+                reader.readAsText(file);
+              }}
+            />
+            <Button variant="outline">Upload Manual Backup (JSON)</Button>
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <h4 className="text-sm font-medium mb-3">Restore from Auto-Backup (Server)</h4>
+          <div className="flex gap-4">
+            <select 
+              className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+              value={selectedBackup}
+              onChange={(e) => setSelectedBackup(e.target.value)}
+            >
+              <option value="">Select a backup point...</option>
+              {backups.map((backup) => {
+                // Parse format: YYYY-MM-DDTHH-mm-ss-sssZ
+                // We need to keep the date part hyphens, and only replace time part hyphens
+                const parts = backup.split('T');
+                const datePart = parts[0];
+                const timePart = parts[1].replace(/-/g, ':').replace('Z', '');
+                // Reconstruct valid ISO string: YYYY-MM-DDTHH:mm:ss.sssZ (approx)
+                // Actually, just displaying it nicely is enough.
+                const displayDate = new Date(`${datePart}T${timePart}`).toLocaleString();
+                
+                return (
+                  <option key={backup} value={backup}>
+                    {displayDate !== 'Invalid Date' ? displayDate : backup}
+                  </option>
+                );
+              })}
+            </select>
+            <Button 
+              variant="destructive" 
+              onClick={handleRestore}
+              disabled={!selectedBackup || isLoading}
+            >
+              {isLoading ? 'Restoring...' : 'Restore Selected Backup'}
+            </Button>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">
+            Select a timestamp to restore the system to that state. This is irreversible.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+
+
   );
 };
 

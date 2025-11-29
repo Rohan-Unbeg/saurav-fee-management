@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "692aa22bd72121a799a5585a",
+    "name": "Course 1",
+    "duration": "1 Month",
+    "standardFee": 5000,
+    "isDeleted": false,
+    "createdAt": "2025-11-29T07:35:07.195Z",
+    "updatedAt": "2025-11-29T07:35:07.195Z",
+    "__v": 0
+  }
+]
