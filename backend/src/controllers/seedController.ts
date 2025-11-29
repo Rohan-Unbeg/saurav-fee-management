@@ -1,70 +1,94 @@
 import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import User from '../models/User';
+import Course from '../models/Course';
 import Student from '../models/Student';
 import Transaction from '../models/Transaction';
-import Course from '../models/Course';
+import Expense from '../models/Expense';
+import Counter from '../models/Counter';
 
 export const seedDatabase = async (req: Request, res: Response) => {
   try {
-    const count = 1000;
-    const batchYears = ['2024', '2025'];
-    const batchMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
-    // Get a course ID
-    const course = await Course.findOne();
-    if (!course) {
-      return res.status(400).json({ message: 'Please create at least one course first.' });
-    }
+    // 1. Wipe Database
+    await User.deleteMany({});
+    await Course.deleteMany({});
+    await Student.deleteMany({});
+    await Transaction.deleteMany({});
+    await Expense.deleteMany({});
+    await Counter.deleteMany({});
 
-    const students = [];
-    const transactions = [];
+    // 2. Create Users
+    const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
-    for (let i = 0; i < count; i++) {
-      const firstName = `Student${i}`;
-      const lastName = `Test`;
-      const mobile = `9${Math.floor(100000000 + Math.random() * 900000000)}`;
-      const batch = `${batchMonths[Math.floor(Math.random() * batchMonths.length)]} ${batchYears[Math.floor(Math.random() * batchYears.length)]}`;
+    // Super Admin (Rohan Unbeg)
+    await User.create({
+      username: 'Rohan Unbeg',
+      password: hashedPassword,
+      role: 'admin',
+      isSuperAdmin: true
+    });
+
+    // Secondary Admin
+    await User.create({
+      username: 'admin',
+      password: hashedPassword,
+      role: 'admin',
+      isSuperAdmin: false
+    });
+
+    // Staff
+    await User.create({
+      username: 'staff',
+      password: hashedPassword,
+      role: 'staff',
+      isSuperAdmin: false
+    });
+
+    // 3. Create Courses
+    const courses = await Course.insertMany([
+      { name: 'MS-CIT', duration: '3 Months', standardFee: 4500 },
+      { name: 'GCC-TBC', duration: '3 Months', standardFee: 3500 },
+      { name: 'MKCL Certificate Course', duration: '2 Months', standardFee: 4000 }
+    ]);
+
+    // 4. Demo Data (Optional via query param ?demo=true)
+    if (req.query.demo === 'true') {
+      const mscit = courses.find(c => c.name === 'MS-CIT')!;
       
-      const totalFee = 5000;
-      const rand = Math.random();
-      const paid = rand > 0.6 ? 5000 : (rand > 0.3 ? 2500 : 0);
-      const status = paid === 5000 ? 'Paid' : (paid > 0 ? 'Partial' : 'Unpaid');
-
-      const student = new Student({
-        firstName,
-        lastName,
-        studentMobile: mobile,
-        parentMobile: mobile,
-        courseId: course._id,
-        batch,
-        dob: new Date(),
-        gender: 'Male',
-        address: 'Test Address',
+      // Student 1: Paid
+      const student1 = await Student.create({
+        firstName: 'Rahul', lastName: 'Sharma',
+        studentMobile: '9876543210', parentMobile: '9876543211',
+        dob: new Date('2000-01-01'), gender: 'Male', address: 'Pune',
+        courseId: mscit._id, batch: 'January 2025',
         admissionDate: new Date(),
-        totalFeeCommitted: totalFee,
-        totalPaid: paid,
-        pendingAmount: totalFee - paid,
-        status,
-        isDeleted: false
+        totalFeeCommitted: 4500, totalPaid: 4500, pendingAmount: 0,
+        status: 'Paid'
       });
 
-      students.push(student);
+      await Transaction.create({
+        studentId: student1._id, amount: 4500, mode: 'Cash',
+        receiptNo: 'REC-0001', date: new Date(), remark: 'Full Payment'
+      });
 
-      if (paid > 0) {
-        transactions.push(new Transaction({
-          studentId: student._id,
-          amount: paid,
-          mode: 'Cash',
-          date: new Date(),
-          receiptNo: `REC-TEST-${i}`,
-          remark: 'Seed Data'
-        }));
-      }
+      // Student 2: Partial
+      const student2 = await Student.create({
+        firstName: 'Priya', lastName: 'Patel',
+        studentMobile: '9876543212', parentMobile: '9876543213',
+        dob: new Date('2001-05-15'), gender: 'Female', address: 'Mumbai',
+        courseId: mscit._id, batch: 'January 2025',
+        admissionDate: new Date(),
+        totalFeeCommitted: 4500, totalPaid: 2000, pendingAmount: 2500,
+        status: 'Partial'
+      });
+
+      await Transaction.create({
+        studentId: student2._id, amount: 2000, mode: 'UPI',
+        receiptNo: 'REC-0002', date: new Date(), remark: 'Installment 1'
+      });
     }
 
-    await Student.insertMany(students);
-    await Transaction.insertMany(transactions);
-
-    res.json({ message: `Successfully seeded ${count} students and ${transactions.length} transactions.` });
+    res.json({ message: 'System reset and seeded successfully! 🌱' });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
@@ -72,9 +96,14 @@ export const seedDatabase = async (req: Request, res: Response) => {
 
 export const clearSeedData = async (req: Request, res: Response) => {
   try {
-    await Student.deleteMany({ lastName: 'Test' });
-    await Transaction.deleteMany({ remark: 'Seed Data' });
-    res.json({ message: 'Cleared all seed data.' });
+    // Just wipe everything
+    await User.deleteMany({});
+    await Course.deleteMany({});
+    await Student.deleteMany({});
+    await Transaction.deleteMany({});
+    await Expense.deleteMany({});
+    await Counter.deleteMany({});
+    res.json({ message: 'Database wiped completely.' });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }

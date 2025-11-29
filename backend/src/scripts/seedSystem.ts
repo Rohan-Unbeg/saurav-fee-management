@@ -8,7 +8,9 @@ import Transaction from '../models/Transaction';
 import Expense from '../models/Expense';
 import Counter from '../models/Counter';
 
-dotenv.config();
+import path from 'path';
+
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fee_management';
 
