@@ -9,13 +9,14 @@ export interface IStudent extends Document {
   address: string;
   studentMobile: string;
   parentMobile: string;
-  courseId: mongoose.Schema.Types.ObjectId;
+  courseId: mongoose.Types.ObjectId;
   batch: string;
   admissionDate: Date;
   totalFeeCommitted: number;
   totalPaid: number;
   pendingAmount: number;
   status: 'Paid' | 'Partial' | 'Unpaid';
+  isDeleted: boolean;
 }
 
 const StudentSchema: Schema = new Schema({
@@ -34,6 +35,7 @@ const StudentSchema: Schema = new Schema({
   totalPaid: { type: Number, default: 0 },
   pendingAmount: { type: Number, required: true },
   status: { type: String, enum: ['Paid', 'Partial', 'Unpaid'], default: 'Unpaid' },
+  isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 
 export default mongoose.model<IStudent>('Student', StudentSchema);

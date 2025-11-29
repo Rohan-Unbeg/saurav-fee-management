@@ -3,6 +3,9 @@ import { getTransactions, createTransaction } from '../controllers/transactionCo
 
 const router = express.Router();
 
-router.route('/').get(getTransactions).post(createTransaction);
+import validate from '../middleware/validateResource';
+import { createTransactionSchema } from '../validators/transactionValidators';
+
+router.route('/').get(getTransactions).post(validate(createTransactionSchema), createTransaction);
 
 export default router;

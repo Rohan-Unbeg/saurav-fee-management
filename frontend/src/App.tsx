@@ -10,6 +10,7 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Expenses from './pages/Expenses';
+import NotFound from './pages/NotFound';
 import axios from 'axios';
 import API_URL from './config';
 
@@ -47,7 +48,7 @@ function App() {
             </Route>
           </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
       <Toaster position="top-center" richColors />

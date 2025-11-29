@@ -1,10 +1,8 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
 import { getStudents, createStudent, updateStudent, deleteStudent, getStudentById } from '../controllers/studentController';
-
-import { studentValidation } from '../validators/studentValidators';
-import { validateRequest } from '../middleware/validateRequest';
+import validate from '../middleware/validateResource';
+import { createStudentSchema, updateStudentSchema } from '../validators/studentValidators';
 
 const router = express.Router();
 
@@ -19,10 +17,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+import { checkRole } from '../middleware/checkRole';
+
 router.get('/', getStudents);
 router.get('/:id', getStudentById);
-router.post('/', upload.single('photo'), studentValidation, validateRequest, createStudent);
-router.put('/:id', upload.single('photo'), studentValidation, validateRequest, updateStudent);
-router.delete('/:id', deleteStudent);
+router.post('/', upload.single('photo'), validate(createStudentSchema), createStudent);
+router.put('/:id', upload.single('photo'), validate(updateStudentSchema), updateStudent);
+router.delete('/:id', checkRole(['admin']), deleteStudent);
 
 export default router;

@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import Student from '../models/Student';
 import Course from '../models/Course';
+import { logAudit } from '../utils/auditLogger';
+import { AuthRequest } from '../middleware/authMiddleware';
 
 export const getStudents = async (req: Request, res: Response) => {
   try {
-    const students = await Student.find().populate('courseId', 'name');
+    const students = await Student.find({ isDeleted: false }).populate('courseId', 'name');
     res.json(students);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
@@ -13,7 +15,7 @@ export const getStudents = async (req: Request, res: Response) => {
 
 export const getStudentById = async (req: Request, res: Response) => {
   try {
-    const student = await Student.findById(req.params.id).populate('courseId', 'name');
+    const student = await Student.findOne({ _id: req.params.id, isDeleted: false }).populate('courseId', 'name');
     if (student) {
       res.json(student);
     } else {
@@ -51,6 +53,9 @@ export const createStudent = async (req: Request, res: Response) => {
     });
 
     const createdStudent = await student.save();
+    
+    await logAudit('CREATE', 'Student', (createdStudent._id as any).toString(), (req as AuthRequest).user?.id, { name: `${createdStudent.firstName} ${createdStudent.lastName}` });
+
     res.status(201).json(createdStudent);
   } catch (error: any) {
     if (error.code === 11000) {
@@ -70,14 +75,12 @@ export const updateStudent = async (req: Request, res: Response) => {
     const student = await Student.findById(id);
 
     if (student) {
-      student.firstName = req.body.firstName || student.firstName;
-      student.lastName = req.body.lastName || student.lastName;
-      student.dob = req.body.dob || student.dob;
-      student.gender = req.body.gender || student.gender;
-      student.address = req.body.address || student.address;
-      student.studentMobile = req.body.studentMobile || student.studentMobile;
-      student.parentMobile = req.body.parentMobile || student.parentMobile;
-      student.batch = req.body.batch || student.batch;
+      const updateData = req.body;
+      if (req.file) {
+        updateData.photoUrl = `/uploads/${req.file.filename}`;
+      }
+      
+      Object.assign(student, updateData);
       
       if (req.body.totalFeeCommitted) {
         const oldFee = student.totalFeeCommitted;
@@ -88,12 +91,11 @@ export const updateStudent = async (req: Request, res: Response) => {
           student.status = student.pendingAmount <= 0 ? 'Paid' : (student.totalPaid > 0 ? 'Partial' : 'Unpaid');
         }
       }
-      
-      if (req.file) {
-        student.photoUrl = `/uploads/${req.file.filename}`;
-      }
 
       const updatedStudent = await student.save();
+      
+      await logAudit('UPDATE', 'Student', (updatedStudent._id as any).toString(), (req as AuthRequest).user?.id, updateData);
+
       res.json(updatedStudent);
     } else {
       res.status(404).json({ message: 'Student not found' });
@@ -115,7 +117,11 @@ export const deleteStudent = async (req: Request, res: Response) => {
     const { id } = req.params;
     const student = await Student.findById(id);
     if (student) {
-      await student.deleteOne();
+      student.isDeleted = true;
+      await student.save();
+      
+      await logAudit('DELETE', 'Student', id, (req as AuthRequest).user?.id);
+
       res.json({ message: 'Student removed' });
     } else {
       res.status(404).json({ message: 'Student not found' });

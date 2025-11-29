@@ -6,8 +6,11 @@ const router = express.Router();
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
 
-router.post('/register', register);
-router.post('/login', login);
+import validate from '../middleware/validateResource';
+import { registerSchema, loginSchema } from '../validators/authValidators';
+
+router.post('/register', validate(registerSchema), register);
+router.post('/login', validate(loginSchema), login);
 
 // Temporary Seed Route (For initial setup)
 router.get('/seed', async (req, res) => {

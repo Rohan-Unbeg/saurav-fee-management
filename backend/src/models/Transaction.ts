@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ITransaction extends Document {
-  studentId: mongoose.Schema.Types.ObjectId;
+  studentId: mongoose.Types.ObjectId;
   amount: number;
   date: Date;
   mode: 'Cash' | 'UPI' | 'Cheque';

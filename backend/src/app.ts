@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 
 import morgan from 'morgan';
+import logger from './utils/logger';
 import connectDB from './config/db';
 import courseRoutes from './routes/courseRoutes';
 import studentRoutes from './routes/studentRoutes';
@@ -25,7 +26,9 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Connect to Database
-connectDB();
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 
 // Middleware
 app.use(cors()); // Enable CORS for all routes
@@ -48,7 +51,23 @@ app.use('/api', limiter);
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10kb' })); // Limit body size
-app.use(morgan('dev'));
+const morganFormat = ':method :url :status :res[content-length] - :response-time ms';
+
+app.use(
+  morgan(morganFormat, {
+    stream: {
+      write: (message) => {
+        const logObject = {
+          method: message.split(' ')[0],
+          url: message.split(' ')[1],
+          status: message.split(' ')[2],
+          responseTime: message.split(' ')[5],
+        };
+        logger.info(JSON.stringify(logObject));
+      },
+    },
+  })
+);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes

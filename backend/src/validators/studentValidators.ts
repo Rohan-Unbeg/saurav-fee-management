@@ -1,15 +1,35 @@
-import { body } from 'express-validator';
+import { z } from 'zod';
 
-export const studentValidation = [
-  body('firstName').notEmpty().withMessage('First name is required').trim().escape(),
-  body('lastName').notEmpty().withMessage('Last name is required').trim().escape(),
-  body('studentMobile')
-    .matches(/^[0-9]{10}$/)
-    .withMessage('Student mobile number must be exactly 10 digits'),
-  body('parentMobile')
-    .matches(/^[0-9]{10}$/)
-    .withMessage('Parent mobile number must be exactly 10 digits'),
-  body('email').optional().isEmail().withMessage('Invalid email address').normalizeEmail(),
-  body('totalFeeCommitted').isNumeric().withMessage('Total fee must be a number'),
-  body('courseId').notEmpty().withMessage('Course is required')
-];
+export const createStudentSchema = z.object({
+  body: z.object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    dob: z.string().transform((str) => new Date(str)),
+    gender: z.enum(['Male', 'Female', 'Other']),
+    address: z.string().min(1, 'Address is required'),
+    studentMobile: z.string().regex(/^[0-9]{10}$/, 'Student mobile number must be exactly 10 digits'),
+    parentMobile: z.string().regex(/^[0-9]{10}$/, 'Parent mobile number must be exactly 10 digits'),
+    courseId: z.string().min(1, 'Course ID is required'),
+    batch: z.string().min(1, 'Batch is required'),
+    totalFeeCommitted: z.number().min(0, 'Total fee cannot be negative'),
+    admissionDate: z.string().optional().transform((str) => str ? new Date(str) : new Date()),
+  }),
+});
+
+export const updateStudentSchema = z.object({
+  body: z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    dob: z.string().optional().transform((str) => str ? new Date(str) : undefined),
+    gender: z.enum(['Male', 'Female', 'Other']).optional(),
+    address: z.string().optional(),
+    studentMobile: z.string().regex(/^[0-9]{10}$/).optional(),
+    parentMobile: z.string().regex(/^[0-9]{10}$/).optional(),
+    courseId: z.string().optional(),
+    batch: z.string().optional(),
+    totalFeeCommitted: z.number().min(0).optional(),
+  }),
+  params: z.object({
+    id: z.string().min(1, 'Student ID is required'),
+  }),
+});

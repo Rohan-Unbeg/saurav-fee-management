@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
 import Transaction from '../models/Transaction';
 import Student from '../models/Student';
+import Counter from '../models/Counter';
 import mongoose from 'mongoose';
+import { logAudit } from '../utils/auditLogger';
+import { AuthRequest } from '../middleware/authMiddleware';
 
 export const getTransactions = async (req: Request, res: Response) => {
   try {
@@ -35,8 +38,14 @@ export const createTransaction = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Amount exceeds pending balance' });
     }
 
-    // Generate Receipt No (Simple timestamp based for now, can be improved)
-    const receiptNo = `REC-${Date.now()}`;
+    // Generate Receipt No using Counter
+    const counter = await Counter.findOneAndUpdate(
+      { name: 'receiptNo' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+
+    const receiptNo = `REC-${counter.seq.toString().padStart(4, '0')}`;
 
     // Auto-generate Installment Remark
     const previousTransactionCount = await Transaction.countDocuments({ studentId });
@@ -65,6 +74,8 @@ export const createTransaction = async (req: Request, res: Response) => {
     }
 
     await student.save();
+
+    await logAudit('CREATE', 'Transaction', (transaction._id as any).toString(), (req as AuthRequest).user?.id, { amount, studentId });
 
     res.status(201).json(transaction);
   } catch (error) {

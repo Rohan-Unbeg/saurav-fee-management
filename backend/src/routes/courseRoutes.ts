@@ -3,7 +3,12 @@ import { getCourses, createCourse, updateCourse, deleteCourse } from '../control
 
 const router = express.Router();
 
-router.route('/').get(getCourses).post(createCourse);
-router.route('/:id').put(updateCourse).delete(deleteCourse);
+import validate from '../middleware/validateResource';
+import { createCourseSchema, updateCourseSchema } from '../validators/courseValidators';
+
+import { checkRole } from '../middleware/checkRole';
+
+router.route('/').get(getCourses).post(validate(createCourseSchema), createCourse);
+router.route('/:id').put(validate(updateCourseSchema), updateCourse).delete(checkRole(['admin']), deleteCourse);
 
 export default router;
