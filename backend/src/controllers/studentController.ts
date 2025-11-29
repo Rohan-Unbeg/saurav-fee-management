@@ -98,10 +98,13 @@ export const createStudent = async (req: Request, res: Response) => {
     res.status(201).json(createdStudent);
   } catch (error: any) {
     if (error.code === 11000) {
+      // Check if it's the compound index error
+      if (error.keyPattern && error.keyPattern.studentMobile && error.keyPattern.courseId) {
+        return res.status(400).json({ message: 'Student is already enrolled in this course.' });
+      }
+      
       const field = Object.keys(error.keyValue)[0];
-      const message = field === 'studentMobile' 
-        ? 'This student mobile number is already registered.' 
-        : `${field} already exists.`;
+      const message = `${field} already exists.`;
       return res.status(400).json({ message });
     }
     res.status(400).json({ message: error.message });
@@ -146,9 +149,7 @@ export const updateStudent = async (req: Request, res: Response) => {
   } catch (error: any) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyValue)[0];
-      const message = field === 'studentMobile' 
-        ? 'This student mobile number is already registered.' 
-        : `${field} already exists.`;
+      const message = `${field} already exists.`;
       return res.status(400).json({ message });
     }
     res.status(400).json({ message: error.message });

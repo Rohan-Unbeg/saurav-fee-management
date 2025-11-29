@@ -27,7 +27,7 @@ const StudentSchema: Schema = new Schema({
   dob: { type: Date, required: true },
   gender: { type: String, required: true },
   address: { type: String, required: true },
-  studentMobile: { type: String, required: true, unique: true },
+  studentMobile: { type: String, required: true },
   parentMobile: { type: String, required: true },
   courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
   batch: { type: String, required: true },
@@ -39,5 +39,8 @@ const StudentSchema: Schema = new Schema({
   nextInstallmentDate: { type: Date },
   isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
+
+// Compound index to prevent duplicate enrollment in the same course
+StudentSchema.index({ studentMobile: 1, courseId: 1 }, { unique: true });
 
 export default mongoose.model<IStudent>('Student', StudentSchema);

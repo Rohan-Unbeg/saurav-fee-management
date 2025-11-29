@@ -40,10 +40,14 @@ const seedDemoData = async () => {
     startDate.setMonth(startDate.getMonth() - 6); // 6 months ago
 
     for (let i = 0; i < 30; i++) {
-      const course = getRandomElement(courses);
+      // Ensure different courses for the first two students who share a mobile
+      let course = getRandomElement(courses);
+      if (i === 0) course = courses[0];
+      if (i === 1) course = courses[1] || courses[0]; // Fallback if only 1 course exists (unlikely)
       const firstName = getRandomElement(firstNames);
       const lastName = getRandomElement(lastNames);
-      const mobile = `9${getRandomInt(100000000, 999999999)}`;
+      // For the first two students, use the SAME mobile number to demonstrate multiple enrollments
+      const mobile = i < 2 ? '9999999999' : `9${getRandomInt(100000000, 999999999)}`;
       
       const admissionDate = getRandomDate(startDate, new Date());
       const totalFee = course.standardFee;

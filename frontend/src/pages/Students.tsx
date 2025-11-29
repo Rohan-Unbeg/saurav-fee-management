@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Search, Edit, Trash2, MessageCircle } from 'lucide-react';
+import { Plus, Search, Edit, Trash2 /*, MessageCircle*/ } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -113,7 +113,7 @@ const Students = () => {
                   <th className="px-6 py-3">Course</th>
                   <th className="px-6 py-3">Batch</th>
                   <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3 text-right">Actions</th>
+                  <th className="px-6 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -126,7 +126,7 @@ const Students = () => {
                       <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
                       <td className="px-6 py-4"><Skeleton className="h-4 w-16" /></td>
                       <td className="px-6 py-4"><Skeleton className="h-6 w-16 rounded-full" /></td>
-                      <td className="px-6 py-4"><Skeleton className="h-8 w-24 ml-auto" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-8 w-24 mx-auto" /></td>
                     </tr>
                   ))
                 ) : (
@@ -157,9 +157,9 @@ const Students = () => {
                             {student.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button 
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex justify-center gap-2">
+                            {/* <Button 
                               variant="ghost" 
                               size="icon" 
                               className="h-8 w-8 text-secondary hover:text-secondary hover:bg-secondary/10"
@@ -170,7 +170,7 @@ const Students = () => {
                               title="Send WhatsApp Message"
                             >
                               <MessageCircle className="h-4 w-4" />
-                            </Button>
+                            </Button> */}
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
                               setEditingStudent(student);
                               setIsAdmissionOpen(true);
