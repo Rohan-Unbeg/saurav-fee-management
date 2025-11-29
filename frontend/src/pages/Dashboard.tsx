@@ -53,22 +53,22 @@ const Dashboard = () => {
       title: "Total Active Students",
       value: stats.totalStudents,
       icon: Users,
-      color: "text-blue-600",
-      bg: "bg-blue-100",
+      color: "text-primary",
+      bg: "bg-primary/10",
     },
     {
       title: "Today's Collection",
       value: `₹${stats.todaysCollection.toLocaleString()}`,
       icon: IndianRupee,
-      color: "text-green-600",
-      bg: "bg-green-100",
+      color: "text-secondary",
+      bg: "bg-secondary/10",
     },
     {
       title: "Total Pending Fees",
       value: `₹${stats.totalPending.toLocaleString()}`,
       icon: AlertCircle,
-      color: "text-red-600",
-      bg: "bg-red-100",
+      color: "text-destructive",
+      bg: "bg-destructive/10",
     },
   ];
 
@@ -184,7 +184,7 @@ const Dashboard = () => {
                       cursor={{ fill: 'transparent' }}
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
-                    <Bar dataKey="total" fill="#0f172a" radius={[4, 4, 0, 0]} barSize={40} />
+                    <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (

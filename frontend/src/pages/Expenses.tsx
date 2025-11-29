@@ -105,7 +105,7 @@ const Expenses = () => {
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Expense Management</h2>
           <p className="text-slate-500">Track and manage your institute's expenses.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="bg-red-600 hover:bg-red-700">
+        <Button onClick={() => setIsModalOpen(true)} className="bg-destructive hover:bg-destructive/90">
           <Plus className="mr-2 h-4 w-4" /> Add Expense
         </Button>
       </div>
@@ -233,7 +233,7 @@ const Expenses = () => {
             />
           </div>
 
-          <Button className="w-full bg-red-600 hover:bg-red-700" onClick={handleCreate}>
+          <Button className="w-full bg-destructive hover:bg-destructive/90" onClick={handleCreate}>
             Record Expense
           </Button>
         </div>

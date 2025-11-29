@@ -213,7 +213,7 @@ const FeeCollection = () => {
                       <p className="text-sm text-slate-500">{student.courseId?.name} - {student.batch}</p>
                     </div>
                     <div className={`px-2 py-1 rounded text-xs font-bold ${
-                      student.pendingAmount === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      student.pendingAmount === 0 ? 'bg-secondary/10 text-secondary' : 'bg-destructive/10 text-destructive'
                     }`}>
                       {student.pendingAmount === 0 ? 'PAID' : 'UNPAID'}
                     </div>
@@ -226,11 +226,11 @@ const FeeCollection = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Paid:</span>
-                      <span className="font-medium text-green-600">₹{student.totalPaid}</span>
+                      <span className="font-medium text-secondary">₹{student.totalPaid}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Pending:</span>
-                      <span className="font-medium text-red-600">₹{student.pendingAmount}</span>
+                      <span className="font-medium text-destructive">₹{student.pendingAmount}</span>
                     </div>
                   </div>
 

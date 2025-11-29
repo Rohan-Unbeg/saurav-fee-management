@@ -160,7 +160,7 @@ const Reports = () => {
         </Button>
       </div>
 
-      <div className="bg-blue-50 p-4 rounded-md text-blue-800 text-sm mb-4">
+      <div className="bg-primary/5 p-4 rounded-md text-primary text-sm mb-4">
         {activeTab === 'defaulters' && "Showing all students who have pending fees."}
         {activeTab === 'batch' && "Showing student list filtered by batch. Use the search bar to filter."}
         {activeTab === 'collection' && "Showing all fee transactions within the selected date range."}
@@ -192,7 +192,7 @@ const Reports = () => {
 
       <div ref={componentRef} className="p-4 bg-white">
         <div className="mb-6 hidden print:block">
-          <h1 className="text-2xl font-bold text-center uppercase">Saurav Computer Institute</h1>
+          <h1 className="text-2xl font-bold text-center uppercase">Saurav Computer</h1>
           <p className="text-center text-sm">Report Generated on: {new Date().toLocaleDateString()}</p>
         </div>
         <Card className="print:shadow-none print:border-none">

@@ -149,9 +149,9 @@ const Students = () => {
                         <td className="px-6 py-4">{student.batch}</td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                            student.status === 'Paid' ? 'bg-green-100 text-green-700' :
+                            student.status === 'Paid' ? 'bg-secondary/10 text-secondary' :
                             student.status === 'Partial' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
+                            'bg-destructive/10 text-destructive'
                           }`}>
                             {student.status}
                           </span>
@@ -161,9 +161,9 @@ const Students = () => {
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                              className="h-8 w-8 text-secondary hover:text-secondary hover:bg-secondary/10"
                               onClick={() => {
-                                const message = `Hello ${student.firstName}, this is from Saurav Computer Institute.`;
+                                const message = `Hello ${student.firstName}, this is from Saurav Computer.`;
                                 window.open(`https://wa.me/91${student.studentMobile}?text=${encodeURIComponent(message)}`, '_blank');
                               }}
                               title="Send WhatsApp Message"
