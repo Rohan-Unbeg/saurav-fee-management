@@ -5,6 +5,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Modal from '@/components/ui/modal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import API_URL from '@/config';
 
@@ -19,6 +20,8 @@ const Expenses = () => {
     date: new Date().toISOString().split('T')[0],
     description: ''
   });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const fetchExpenses = async () => {
     try {
@@ -59,22 +62,27 @@ const Expenses = () => {
       });
       fetchExpenses();
       toast.success('Expense recorded successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating expense:', error);
-      toast.error('Failed to create expense');
+      const errorMsg = error.response?.data?.message || 'Failed to create expense';
+      toast.error(errorMsg);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this expense?')) {
-      try {
-        await axios.delete(`${API_URL}/api/expenses/${id}`);
-        fetchExpenses();
-        toast.success('Expense deleted');
-      } catch (error) {
-        console.error('Error deleting expense:', error);
-        toast.error('Failed to delete expense');
-      }
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await axios.delete(`${API_URL}/api/expenses/${deleteId}`);
+      fetchExpenses();
+      toast.success('Expense deleted');
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      toast.error('Failed to delete expense');
     }
   };
 
@@ -135,7 +143,7 @@ const Expenses = () => {
                       </td>
                       <td className="px-6 py-4 text-right font-bold">₹{expense.amount}</td>
                       <td className="px-6 py-4 text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(expense._id)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(expense._id)} aria-label="Delete Expense">
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
                       </td>
@@ -218,6 +226,16 @@ const Expenses = () => {
           </Button>
         </div>
       </Modal>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Expense"
+        message="Are you sure you want to delete this expense? This action cannot be undone."
+        variant="destructive"
+        confirmText="Delete"
+      />
     </div>
   );
 };

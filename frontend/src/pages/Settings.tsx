@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Modal from '@/components/ui/modal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { toast } from 'sonner';
 import API_URL from '@/config';
 
@@ -26,6 +27,8 @@ const Settings = () => {
     duration: '',
     standardFee: 0,
   });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const fetchCourses = async () => {
     try {
@@ -51,16 +54,20 @@ const Settings = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this course?')) {
-      try {
-        await axios.delete(`${API_URL}/api/courses/${id}`);
-        fetchCourses();
-        toast.success('Course deleted');
-      } catch (error) {
-        console.error('Error deleting course:', error);
-        toast.error('Failed to delete course');
-      }
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await axios.delete(`${API_URL}/api/courses/${deleteId}`);
+      fetchCourses();
+      toast.success('Course deleted');
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      toast.error('Failed to delete course');
     }
   };
 
@@ -84,9 +91,10 @@ const Settings = () => {
       setEditingCourse(null);
       setFormData({ name: '', duration: '', standardFee: 0 });
       fetchCourses();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving course:', error);
-      toast.error('Failed to save course');
+      const errorMsg = error.response?.data?.message || 'Failed to save course';
+      toast.error(errorMsg);
     }
   };
 
@@ -137,14 +145,15 @@ const Settings = () => {
                     <td className="px-6 py-4">₹{course.standardFee}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(course)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(course)} aria-label="Edit Course">
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                          onClick={() => handleDelete(course._id)}
+                          onClick={() => handleDeleteClick(course._id)}
+                          aria-label="Delete Course"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -254,6 +263,16 @@ const Settings = () => {
           </Button>
         </form>
       </Modal>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Course"
+        message="Are you sure you want to delete this course? This action cannot be undone."
+        variant="destructive"
+        confirmText="Delete"
+      />
     </div>
   );
 };

@@ -85,6 +85,48 @@ router.get('/seed-demo', async (req, res) => {
       }
     }
 
+    // 3. Create Transactions (for Chart Data)
+    const Transaction = (await import('../models/Transaction')).default;
+    
+    // Clear existing transactions to avoid duplicates if re-seeded
+    // await Transaction.deleteMany({}); 
+
+    const transactions: any[] = [
+      {
+        studentId: (await Student.findOne({ studentMobile: '9876543210' }))?._id,
+        amount: 2000,
+        date: new Date(), // Today
+        mode: 'Cash',
+        receiptNo: 'REC-001',
+        remark: 'First Installment'
+      },
+      {
+        studentId: (await Student.findOne({ studentMobile: '9123456789' }))?._id,
+        amount: 3500,
+        date: new Date(new Date().setMonth(new Date().getMonth() - 1)), // Last Month
+        mode: 'UPI',
+        receiptNo: 'REC-002',
+        remark: 'Full Payment'
+      },
+      {
+        studentId: (await Student.findOne({ studentMobile: '9876543210' }))?._id,
+        amount: 1000,
+        date: new Date(new Date().setMonth(new Date().getMonth() - 2)), // 2 Months Ago
+        mode: 'Cash',
+        receiptNo: 'REC-003',
+        remark: 'Registration Fee'
+      }
+    ];
+
+    for (const t of transactions) {
+      if (t.studentId) {
+        const exists = await Transaction.findOne({ receiptNo: t.receiptNo });
+        if (!exists) {
+          await Transaction.create(t);
+        }
+      }
+    }
+
     res.send('Demo data (Courses & Students) created successfully!');
   } catch (error) {
     console.error(error);

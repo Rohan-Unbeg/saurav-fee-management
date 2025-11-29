@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import Modal from '@/components/ui/modal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import AdmissionForm from '@/components/AdmissionForm';
+import { toast } from 'sonner';
 import API_URL from '@/config';
 
 const Students = () => {
@@ -15,6 +17,8 @@ const Students = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdmissionOpen, setIsAdmissionOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,15 +50,20 @@ const Students = () => {
     setFilteredStudents(filtered);
   }, [searchQuery, students]);
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this student?')) {
-      try {
-        await axios.delete(`${API_URL}/api/students/${id}`);
-        fetchStudents();
-      } catch (error) {
-        console.error('Error deleting student:', error);
-        alert('Failed to delete student');
-      }
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await axios.delete(`${API_URL}/api/students/${deleteId}`);
+      toast.success('Student deleted successfully');
+      fetchStudents();
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      toast.error('Failed to delete student');
     }
   };
 
@@ -156,14 +165,15 @@ const Students = () => {
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
                               setEditingStudent(student);
                               setIsAdmissionOpen(true);
-                            }}>
+                            }} aria-label="Edit Student">
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button 
                               variant="ghost" 
                               size="icon" 
                               className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                              onClick={() => handleDelete(student._id)}
+                              onClick={() => handleDeleteClick(student._id)}
+                              aria-label="Delete Student"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -204,6 +214,16 @@ const Students = () => {
           }}
         />
       </Modal>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This action cannot be undone."
+        variant="destructive"
+        confirmText="Delete"
+      />
     </div>
   );
 };

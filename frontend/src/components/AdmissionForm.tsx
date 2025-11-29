@@ -31,7 +31,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
     courseId: student?.courseId?._id || student?.courseId || '',
     batch: student?.batch || '',
     admissionDate: student?.admissionDate ? new Date(student.admissionDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-    standardFee: student?.standardFee || 0,
+    totalFeeCommitted: student?.totalFeeCommitted || 0,
     photo: null as File | null,
   });
 
@@ -56,7 +56,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
     setFormData({
       ...formData,
       courseId,
-      standardFee: selectedCourse ? selectedCourse.standardFee : 0,
+      totalFeeCommitted: selectedCourse ? selectedCourse.standardFee : 0,
     });
     if (courseId) setErrors(prev => ({ ...prev, courseId: '' }));
   };
@@ -69,7 +69,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
       if (value && !/^\d*$/.test(value)) return; // Only allow digits
       if (value.length > 10) return; // Max 10 digits
     }
-    if (name === 'standardFee') {
+    if (name === 'totalFeeCommitted') {
        if (value && !/^\d*$/.test(value)) return;
     }
 
@@ -91,7 +91,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
     if (!formData.parentMobile || formData.parentMobile.length !== 10) newErrors.parentMobile = 'Mobile must be 10 digits';
     if (!formData.courseId) newErrors.courseId = 'Course is required';
     if (!formData.batch.trim()) newErrors.batch = 'Batch is required';
-    if (Number(formData.standardFee) < 0) newErrors.standardFee = 'Fee cannot be negative';
+    if (Number(formData.totalFeeCommitted) < 0) newErrors.totalFeeCommitted = 'Fee cannot be negative';
 
     if (formData.dob) {
       const dobDate = new Date(formData.dob);
@@ -146,7 +146,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
       console.error('Error saving student:', error);
       const errorMsg = error.response?.data?.errors 
         ? error.response.data.errors.map((e: any) => e.msg).join(', ')
-        : 'Failed to save student.';
+        : error.response?.data?.message || 'Failed to save student.';
       toast.error(errorMsg);
     }
   };
@@ -253,15 +253,15 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="standardFee">Total Fee (₹)</Label>
+        <Label htmlFor="totalFeeCommitted">Total Fee (₹)</Label>
         <Input 
-          id="standardFee" 
-          name="standardFee" 
-          value={formData.standardFee} 
+          id="totalFeeCommitted" 
+          name="totalFeeCommitted" 
+          value={formData.totalFeeCommitted} 
           onChange={handleChange} 
-          className={errors.standardFee ? 'border-red-500' : ''}
+          className={errors.totalFeeCommitted ? 'border-red-500' : ''}
         />
-        {errors.standardFee && <p className="text-xs text-red-500">{errors.standardFee}</p>}
+        {errors.totalFeeCommitted && <p className="text-xs text-red-500">{errors.totalFeeCommitted}</p>}
       </div>
 
       <div className="space-y-2">

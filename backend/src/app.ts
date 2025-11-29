@@ -31,7 +31,9 @@ connectDB();
 app.use(cors()); // Enable CORS for all routes
 
 // Security Middleware
-app.use(helmet()); // Set security HTTP headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+})); // Set security HTTP headers
 app.use(mongoSanitize()); // Data sanitization against NoSQL query injection
 app.use(xss()); // Data sanitization against XSS
 

@@ -29,7 +29,7 @@ export const createStudent = async (req: Request, res: Response) => {
     const {
       firstName, lastName, dob, gender, address,
       studentMobile, parentMobile, courseId, batch,
-      admissionDate, standardFee, discount
+      admissionDate, totalFeeCommitted, discount
     } = req.body;
 
     const photoUrl = req.file ? `/uploads/${req.file.filename}` : '';
@@ -40,20 +40,27 @@ export const createStudent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    const totalFeeCommitted = standardFee || course.standardFee;
-    const pendingAmount = totalFeeCommitted; // Initially pending is total
+    const finalFee = totalFeeCommitted || course.standardFee;
+    const pendingAmount = finalFee; // Initially pending is total
 
     const student = new Student({
       firstName, lastName, photoUrl, dob, gender, address,
       studentMobile, parentMobile, courseId, batch,
-      admissionDate, totalFeeCommitted, totalPaid: 0, pendingAmount,
+      admissionDate, totalFeeCommitted: finalFee, totalPaid: 0, pendingAmount,
       status: 'Unpaid'
     });
 
     const createdStudent = await student.save();
     res.status(201).json(createdStudent);
-  } catch (error) {
-    res.status(400).json({ message: (error as Error).message });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      const message = field === 'studentMobile' 
+        ? 'This student mobile number is already registered.' 
+        : `${field} already exists.`;
+      return res.status(400).json({ message });
+    }
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -72,6 +79,16 @@ export const updateStudent = async (req: Request, res: Response) => {
       student.parentMobile = req.body.parentMobile || student.parentMobile;
       student.batch = req.body.batch || student.batch;
       
+      if (req.body.totalFeeCommitted) {
+        const oldFee = student.totalFeeCommitted;
+        const newFee = Number(req.body.totalFeeCommitted);
+        if (oldFee !== newFee) {
+          student.totalFeeCommitted = newFee;
+          student.pendingAmount = newFee - student.totalPaid;
+          student.status = student.pendingAmount <= 0 ? 'Paid' : (student.totalPaid > 0 ? 'Partial' : 'Unpaid');
+        }
+      }
+      
       if (req.file) {
         student.photoUrl = `/uploads/${req.file.filename}`;
       }
@@ -81,8 +98,15 @@ export const updateStudent = async (req: Request, res: Response) => {
     } else {
       res.status(404).json({ message: 'Student not found' });
     }
-  } catch (error) {
-    res.status(400).json({ message: (error as Error).message });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      const message = field === 'studentMobile' 
+        ? 'This student mobile number is already registered.' 
+        : `${field} already exists.`;
+      return res.status(400).json({ message });
+    }
+    res.status(400).json({ message: error.message });
   }
 };
 

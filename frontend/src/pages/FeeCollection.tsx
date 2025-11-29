@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useReactToPrint } from 'react-to-print';
 import { Search, Printer, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +71,7 @@ const FeeCollection = () => {
     if (!selectedStudent) return;
     
     if (Number(paymentAmount) > selectedStudent.pendingAmount) {
-      alert('Amount cannot exceed pending balance');
+      toast.error('Amount cannot exceed pending balance');
       return;
     }
 
@@ -110,9 +111,10 @@ const FeeCollection = () => {
         setShowReceipt(false);
       }, 3000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment failed:', error);
-      alert('Payment failed');
+      const errorMsg = error.response?.data?.message || 'Payment failed';
+      toast.error(errorMsg);
     }
   };
 
