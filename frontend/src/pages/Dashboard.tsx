@@ -218,7 +218,10 @@ const Dashboard = () => {
                   {recentTransactions.map((tx) => (
                     <tr key={tx._id} className="bg-white border-b hover:bg-slate-50">
                       <td className="px-4 py-3 font-medium">
-                        <div className="font-medium">{tx.studentId?.firstName} {tx.studentId?.lastName}</div>
+                        <div className="font-medium">
+                          {tx.studentId?.firstName} {tx.studentId?.lastName}
+                          {tx.studentId?.isDeleted && <span className="text-red-500 text-xs ml-2">(Deleted)</span>}
+                        </div>
                         <div className="text-xs text-slate-500">{new Date(tx.date).toLocaleDateString()}</div>
                       </td>
                       <td className="px-4 py-3 text-right font-bold text-green-600">₹{tx.amount}</td>

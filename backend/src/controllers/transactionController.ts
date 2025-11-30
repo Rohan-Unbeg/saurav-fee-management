@@ -26,7 +26,7 @@ export const getTransactions = async (req: Request, res: Response) => {
     }
 
     const transactions = await Transaction.find(filter)
-      .populate('studentId', 'firstName lastName')
+      .populate('studentId', 'firstName lastName isDeleted')
       .sort({ date: -1 })
       .skip(skip)
       .limit(limit);

@@ -246,6 +246,7 @@ const Reports = () => {
                             <td className="px-6 py-4">{new Date(tx.date).toLocaleDateString()}</td>
                             <td className="px-6 py-4 font-medium text-slate-900">
                               {tx.studentId?.firstName} {tx.studentId?.lastName}
+                              {tx.studentId?.isDeleted && <span className="text-red-500 text-xs ml-2">(Deleted)</span>}
                             </td>
                             <td className="px-6 py-4">{tx.receiptNo}</td>
                             <td className="px-6 py-4">{tx.mode}</td>
