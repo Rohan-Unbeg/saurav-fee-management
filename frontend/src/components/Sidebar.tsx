@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, IndianRupee, FileText, Settings, LogOut, TrendingDown, X } from 'lucide-react';
+import { LayoutDashboard, Users, IndianRupee, FileText, Settings, LogOut, TrendingDown, X, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface SidebarProps {
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -55,7 +57,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto no-scrollbar">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -80,13 +82,24 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         </nav>
 
         <div className="p-4 border-t border-white/10">
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-200 transition-colors"
-          >
-            <LogOut size={20} />
-            <span className="font-medium">Logout</span>
-          </button>
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <Link to="/profile" className="flex items-center gap-3 flex-1 min-w-0" onClick={() => onClose()}>
+              <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                {user?.username?.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-medium text-sm truncate text-white">{user?.username}</span>
+                <span className="text-xs text-blue-200 capitalize truncate">{user?.role}</span>
+              </div>
+            </Link>
+            <button 
+              onClick={handleLogout}
+              className="p-2 text-blue-200 hover:text-red-200 hover:bg-red-500/20 rounded-md transition-colors"
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </>

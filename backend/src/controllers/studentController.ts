@@ -13,6 +13,7 @@ export const getStudents = async (req: Request, res: Response) => {
       const skip = (page - 1) * limit;
 
       const search = req.query.search as string;
+      const batch = req.query.batch as string;
       const filter: any = { isDeleted: false };
 
       if (search) {
@@ -24,11 +25,19 @@ export const getStudents = async (req: Request, res: Response) => {
         ];
       }
 
+      if (batch) {
+        filter.batch = { $regex: batch, $options: 'i' };
+      }
+
+      if (req.query.defaulters === 'true') {
+        filter.pendingAmount = { $gt: 0 };
+      }
+
       const students = await Student.find(filter)
         .populate('courseId', 'name')
         .skip(skip)
         .limit(limit)
-        .sort(search ? { firstName: 1 } : { createdAt: -1 });
+        .sort(search ? { firstName: 1 } : { pendingAmount: -1, createdAt: -1 });
         
       const total = await Student.countDocuments(filter);
 
@@ -44,7 +53,7 @@ export const getStudents = async (req: Request, res: Response) => {
     // Default behavior: Return all students (Backward Compatibility)
     const students = await Student.find({ isDeleted: false })
       .populate('courseId', 'name')
-      .sort({ createdAt: -1 });
+      .sort({ pendingAmount: -1, createdAt: -1 });
     res.json(students);
 
   } catch (error) {

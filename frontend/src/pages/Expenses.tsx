@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Modal from '@/components/ui/modal';
@@ -24,13 +24,26 @@ const Expenses = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  // Filters
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchExpenses = async (pageNum = 1) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_URL}/api/expenses?page=${pageNum}&limit=10`);
+      let url = `${API_URL}/api/expenses?page=${pageNum}&limit=10`;
+      
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+      if (category && category !== 'All') url += `&category=${encodeURIComponent(category)}`;
+      if (startDate) url += `&startDate=${startDate}`;
+      if (endDate) url += `&endDate=${endDate}`;
+
+      const response = await axios.get(url);
       setExpenses(response.data.data);
       setTotalPages(response.data.totalPages);
       setPage(pageNum);
@@ -41,6 +54,10 @@ const Expenses = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchExpenses(1); // Reset to page 1 on filter change
+  }, [search, category, startDate, endDate]);
 
   useEffect(() => {
     fetchExpenses(page);
@@ -99,6 +116,13 @@ const Expenses = () => {
     setNewExpense({ ...newExpense, amount: value });
   };
 
+  const resetFilters = () => {
+    setSearch('');
+    setCategory('All');
+    setStartDate('');
+    setEndDate('');
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -109,6 +133,55 @@ const Expenses = () => {
         <Button onClick={() => setIsModalOpen(true)} className="bg-destructive hover:bg-destructive/90">
           <Plus className="mr-2 h-4 w-4" /> Add Expense
         </Button>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-lg border shadow-sm space-y-4 md:space-y-0 md:flex md:items-center md:gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
+          <Input 
+            placeholder="Search by title..." 
+            className="pl-9"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        
+        <select 
+          className="flex h-10 w-full md:w-40 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="All">All Categories</option>
+          <option value="Rent">Rent</option>
+          <option value="Salary">Salary</option>
+          <option value="Electricity">Electricity</option>
+          <option value="Maintenance">Maintenance</option>
+          <option value="Stationery">Stationery</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <div className="flex items-center gap-2">
+          <Input 
+            type="date" 
+            className="w-full md:w-auto"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <span className="text-slate-400">-</span>
+          <Input 
+            type="date" 
+            className="w-full md:w-auto"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+
+        {(search || category !== 'All' || startDate || endDate) && (
+          <Button variant="ghost" size="icon" onClick={resetFilters} title="Reset Filters">
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <div className="rounded-md border bg-white">

@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useReactToPrint } from 'react-to-print';
 import { Printer } from 'lucide-react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -38,9 +39,69 @@ const Reports = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const componentRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
+  
+  const reactToPrintFn = useReactToPrint({
     contentRef: componentRef,
+    onAfterPrint: () => {
+      // Optional: Restore pagination if needed, but keeping "View All" might be fine or just let user navigate
+      // For now, we won't auto-revert to page 1 to avoid jarring UX.
+    }
   });
+
+  const handlePrint = async () => {
+    try {
+      setIsLoading(true);
+      const limit = 10000; // Fetch all (or a very large number)
+      
+      if (activeTab === 'collection') {
+        toast.info('Preparing report...');
+        const response = await axios.get(`${API_URL}/api/transactions?startDate=${startDate}&endDate=${endDate}&page=1&limit=${limit}`);
+        setTransactions(response.data.data);
+        // Recalculate totals for the full dataset
+        const total = response.data.data.reduce((sum: number, tx: any) => sum + tx.amount, 0);
+        setTotalCollection(total);
+        const modes = response.data.data.reduce((acc: any, tx: any) => {
+          acc[tx.mode] = (acc[tx.mode] || 0) + tx.amount;
+          return acc;
+        }, { Cash: 0, UPI: 0, Cheque: 0 });
+        setModeTotals(modes);
+      } else {
+        // Students (Defaulters or Batch)
+        let url = `${API_URL}/api/students?page=1&limit=${limit}`;
+        if (activeTab === 'batch' && batchFilter) {
+          url += `&batch=${encodeURIComponent(batchFilter)}`;
+        }
+        if (activeTab === 'defaulters') {
+          url += `&defaulters=true`;
+        }
+        
+        toast.info('Preparing report...');
+        const response = await axios.get(url);
+        
+        if (response.data.data) {
+           setStudents(response.data.data);
+           setFilteredStudents(response.data.data);
+        } else {
+           setStudents(response.data);
+           setFilteredStudents(response.data);
+        }
+        
+        // No need for client-side filtering anymore as backend handles it
+      }
+
+      setIsLoading(false);
+
+      // Wait a bit for state to update and DOM to render
+      setTimeout(() => {
+        reactToPrintFn();
+      }, 500);
+
+    } catch (error) {
+      console.error('Error preparing print:', error);
+      setIsLoading(false);
+      toast.error('Failed to prepare report for printing');
+    }
+  };
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -49,22 +110,26 @@ const Reports = () => {
       setIsLoading(true);
       let url = `${API_URL}/api/students?page=${pageNum}&limit=10`;
       
-      // Note: For true server-side filtering, we'd need to pass these params to the backend.
-      // Currently backend only supports basic pagination. 
-      // For now, we will fetch paginated students and filter client side which is NOT ideal for 'defaulters' 
-      // if the defaulter is on page 2.
-      // TODO: Implement server-side filtering for 'defaulters' and 'batch' in studentController.
+      if (activeTab === 'batch' && batchFilter) {
+        url += `&batch=${encodeURIComponent(batchFilter)}`;
+      }
+      
+      if (activeTab === 'defaulters') {
+        url += `&defaulters=true`;
+      }
+      
+      // Note: Now we have server-side filtering for both batch and defaulters.
       
       const response = await axios.get(url);
       
       // Handle the new paginated response structure
       if (response.data.data) {
          setStudents(response.data.data);
-         setFilteredStudents(response.data.data); // Initial set, filtering happens in useEffect
+         setFilteredStudents(response.data.data); 
          setTotalPages(response.data.totalPages);
          setPage(pageNum);
       } else {
-         // Fallback for non-paginated response (should not happen with new backend)
+         // Fallback for non-paginated response
          setStudents(response.data);
          setFilteredStudents(response.data);
       }
@@ -83,18 +148,21 @@ const Reports = () => {
   }, [activeTab, page]);
 
   useEffect(() => {
-    if (activeTab === 'defaulters') {
-      // Client-side filtering on the *current page* of students.
-      // This is a temporary limitation. Ideally, we need /api/students?status=Unpaid&page=1
-      setFilteredStudents(students.filter(s => s.pendingAmount > 0));
-    } else if (activeTab === 'batch') {
-      if (batchFilter) {
-        setFilteredStudents(students.filter(s => s.batch.toLowerCase().includes(batchFilter.toLowerCase())));
-      } else {
-        setFilteredStudents(students);
-      }
+    if (activeTab === 'batch') {
+      const timer = setTimeout(() => {
+        fetchStudents(1);
+      }, 500); // Debounce search
+      return () => clearTimeout(timer);
     }
-  }, [activeTab, students, batchFilter]);
+  }, [batchFilter]);
+
+  useEffect(() => {
+    if (activeTab === 'defaulters') {
+       // Server-side filtering now enabled, just fetch page 1
+       setPage(1);
+       fetchStudents(1);
+    }
+  }, [activeTab]);
 
   const fetchTransactions = async (pageNum = 1) => {
     try {
@@ -155,15 +223,28 @@ const Reports = () => {
             Collection
           </Button>
         </div>
-        <Button onClick={() => handlePrint()} variant="outline" size="sm" className="w-full md:w-auto">
+        <Button onClick={handlePrint} variant="outline" size="sm" className="w-full md:w-auto">
           <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
         </Button>
       </div>
 
-      <div className="bg-primary/5 p-4 rounded-md text-primary text-sm mb-4 no-print">
-        {activeTab === 'defaulters' && "Showing all students who have pending fees."}
-        {activeTab === 'batch' && "Showing student list filtered by batch. Use the search bar to filter."}
-        {activeTab === 'collection' && "Showing all fee transactions within the selected date range."}
+      <div className="bg-primary/5 p-4 rounded-md text-primary text-sm mb-4 no-print space-y-4">
+        <div>
+          {activeTab === 'defaulters' && "Showing all students who have pending fees."}
+          {activeTab === 'batch' && "Filter students by their batch name."}
+          {activeTab === 'collection' && "Showing all fee transactions within the selected date range."}
+        </div>
+
+        {activeTab === 'batch' && (
+          <div className="flex gap-4 items-center max-w-md">
+             <Input 
+               placeholder="Enter Batch Name (e.g. Jan 2025)..." 
+               value={batchFilter}
+               onChange={(e) => setBatchFilter(e.target.value)}
+               className="bg-white"
+             />
+          </div>
+        )}
       </div>
 
       {activeTab === 'collection' && (
@@ -202,7 +283,12 @@ const Reports = () => {
                activeTab === 'batch' ? 'Student Batch Report' : 
                'Fee Collection Report'}
             </h2>
-            <p className="text-xs text-slate-500 mt-1">Generated on: {new Date().toLocaleString()}</p>
+            <div className="flex justify-between items-center mt-1 px-4">
+              <p className="text-xs text-slate-500">Generated on: {new Date().toLocaleString()}</p>
+              <p className="text-xs text-slate-500 font-semibold">
+                Total Records: {activeTab === 'collection' ? transactions.length : filteredStudents.length}
+              </p>
+            </div>
           </div>
         </div>
 

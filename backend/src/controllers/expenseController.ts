@@ -7,12 +7,33 @@ export const getExpenses = async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
-    const expenses = await Expense.find()
+    const { search, category, startDate, endDate } = req.query;
+    const filter: any = {};
+
+    if (search) {
+      filter.title = { $regex: search, $options: 'i' };
+    }
+
+    if (category && category !== 'All') {
+      filter.category = category;
+    }
+
+    if (startDate || endDate) {
+      filter.date = {};
+      if (startDate) filter.date.$gte = new Date(startDate as string);
+      if (endDate) {
+        const end = new Date(endDate as string);
+        end.setHours(23, 59, 59, 999);
+        filter.date.$lte = end;
+      }
+    }
+
+    const expenses = await Expense.find(filter)
       .sort({ date: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Expense.countDocuments();
+    const total = await Expense.countDocuments(filter);
 
     res.json({
       data: expenses,

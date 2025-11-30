@@ -10,6 +10,7 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Expenses from './pages/Expenses';
+import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import axios from 'axios';
 import API_URL from './config';
@@ -87,6 +88,7 @@ function App() {
               <Route path="/fee-collection" element={<FeeCollection />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/expenses" element={<Expenses />} /> {/* Added route for Expenses */}
+              <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
           </Route>

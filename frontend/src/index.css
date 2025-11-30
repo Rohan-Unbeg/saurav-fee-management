@@ -162,6 +162,37 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-slate-300 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-slate-400;
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
 }
 
 @media print {
@@ -170,20 +201,25 @@
         size: A4;
     }
 
-    body {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        background: white !important;
-        color: black !important;
+    /* Reset all layout containers */
+    html,
+    body,
+    #root,
+    main,
+    div {
+        height: auto !important;
+        overflow: visible !important;
+        min-height: 0 !important;
     }
 
     /* Hide non-printable elements */
-    .no-print, 
-    button, 
-    nav, 
-    aside, 
+    .no-print,
+    button,
+    nav,
+    aside,
     .sidebar,
-    .header-actions {
+    .header-actions,
+    .fixed {
         display: none !important;
     }
 
@@ -194,6 +230,10 @@
         padding: 0 !important;
         box-shadow: none !important;
         border: none !important;
+        overflow: visible !important;
+        height: auto !important;
+        display: block !important;
+        background: white !important;
     }
 
     /* Table Styling for Print */
@@ -201,16 +241,32 @@
         width: 100% !important;
         border-collapse: collapse !important;
         font-size: 12px !important;
+        page-break-inside: auto;
     }
 
-    th, td {
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+
+    th,
+    td {
         border: 1px solid #ddd !important;
         padding: 8px !important;
         text-align: left !important;
     }
 
     th {
-        background-color: #f3f4f6 !important; /* slate-100 */
+        background-color: #f3f4f6 !important;
+        /* slate-100 */
         font-weight: bold !important;
         color: black !important;
     }

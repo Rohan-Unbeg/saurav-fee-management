@@ -14,8 +14,9 @@ router.post('/login', validate(loginSchema), login);
 
 import { authenticateToken } from '../middleware/authMiddleware';
 import { checkRole } from '../middleware/checkRole';
-import { getUsers, deleteUser } from '../controllers/authController';
+import { getUsers, deleteUser, changePassword } from '../controllers/authController';
 
+router.put('/change-password', authenticateToken, changePassword);
 router.get('/users', authenticateToken, checkRole(['admin']), getUsers);
 router.delete('/users/:id', authenticateToken, checkRole(['admin']), deleteUser);
 
