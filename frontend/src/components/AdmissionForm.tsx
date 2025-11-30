@@ -65,9 +65,22 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    // Name Validation: Allow letters, spaces, hyphens, apostrophes
+    // Name Validation: Strict (Letters and spaces only, no special chars like - or ')
     if (name === 'firstName' || name === 'lastName') {
-      if (value && !/^[a-zA-Z\s\-\']*$/.test(value)) return;
+      if (value && !/^[a-zA-Z\s]*$/.test(value)) {
+        toast.error('Only letters and spaces are allowed in names');
+        return;
+      }
+    }
+
+    // Address Validation: No Emojis (Basic address chars only)
+    if (name === 'address') {
+       // Allow letters, numbers, spaces, and common address punctuation (.,-/#)
+       // This regex effectively blocks emojis and other non-standard symbols
+       if (value && !/^[a-zA-Z0-9\s,.\-/#]*$/.test(value)) {
+         toast.error('Special characters and emojis are not allowed in address');
+         return;
+       }
     }
 
     // Strict Number Validation for Mobile and Fee

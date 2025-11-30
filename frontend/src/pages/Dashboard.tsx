@@ -263,7 +263,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Upcoming Installments Card */}
-        <Card className="col-span-1 md:col-span-7 lg:col-span-4">
+        <Card className="col-span-1 md:col-span-7">
           <CardHeader>
             <CardTitle>Upcoming Installments (Next 7 Days)</CardTitle>
           </CardHeader>

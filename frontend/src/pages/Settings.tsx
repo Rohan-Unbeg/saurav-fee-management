@@ -489,7 +489,7 @@ const UserManagement = () => {
                   <tr key={user._id} className="bg-white border-b hover:bg-slate-50">
                     <td className="px-6 py-4 font-medium">{user.username}</td>
                     <td className="px-6 py-4 capitalize">
-                      <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-blue-100 text-blue-700'}`}>
                         {user.role}
                       </span>
                     </td>
