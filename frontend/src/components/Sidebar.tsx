@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, IndianRupee, FileText, Settings, LogOut, TrendingDown, X, User } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, IndianRupee, FileText, Settings, LogOut, TrendingDown, X, User, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 
@@ -21,8 +21,8 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-    { icon: Users, label: 'Admission', path: '/admission' },
-    { icon: Users, label: 'Students', path: '/students' },
+    { icon: UserPlus, label: 'Admission', path: '/admission' },
+    { icon: GraduationCap, label: 'Students', path: '/students' },
     { icon: IndianRupee, label: 'Fee Collection', path: '/fee-collection' },
     { icon: FileText, label: 'Reports', path: '/reports' },
     { icon: TrendingDown, label: 'Expenses', path: '/expenses' },
