@@ -137,7 +137,7 @@ const Students = () => {
                           <div className="flex items-center gap-3">
                             {student.photoUrl && (
                               <img 
-                                src={`${API_URL}${student.photoUrl}`} 
+                                src={student.photoUrl.startsWith('http') ? student.photoUrl : `${API_URL}${student.photoUrl}`} 
                                 alt={student.firstName} 
                                 className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                                 onClick={() => setSelectedImage(student.photoUrl)}
@@ -250,7 +250,7 @@ const Students = () => {
       >
         <div className="flex justify-center">
           <img 
-            src={selectedImage ? `${API_URL}${selectedImage}` : ''} 
+            src={selectedImage ? (selectedImage.startsWith('http') ? selectedImage : `${API_URL}${selectedImage}`) : ''} 
             alt="Student" 
             className="max-w-full max-h-[60vh] object-contain rounded-md"
           />
