@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import API_URL from '@/config';
@@ -94,10 +95,9 @@ const Login = () => {
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
-                      <Input 
+                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400 z-10" />
+                      <PasswordInput 
                         id="password"
-                        type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"

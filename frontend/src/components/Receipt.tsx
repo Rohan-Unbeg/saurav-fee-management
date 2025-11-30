@@ -19,7 +19,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ transac
       <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-8">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 uppercase">Saurav Computer</h1>
-          <p className="text-sm text-slate-600 mt-2 font-medium">At Post: Shendurjan, Tal: Wai, Dist: Satara</p>
+          <p className="text-sm text-slate-600 mt-2 font-medium">At Post: Shendurjan, Tal: Sindkhed Raja, Maharashtra 443202</p>
           <p className="text-sm text-slate-600 font-medium">Mobile: 9823779796</p>
         </div>
         <div className="text-right">

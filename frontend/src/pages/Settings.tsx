@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Modal from '@/components/ui/modal';
@@ -506,9 +507,8 @@ const UserManagement = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input 
+              <PasswordInput 
                 id="password" 
-                type="password"
                 value={formData.password} 
                 onChange={(e) => setFormData({...formData, password: e.target.value})} 
                 required 

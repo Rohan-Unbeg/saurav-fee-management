@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
@@ -94,9 +95,8 @@ const Profile = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="oldPassword">Current Password</Label>
-              <Input
+              <PasswordInput
                 id="oldPassword"
-                type="password"
                 value={passwords.oldPassword}
                 onChange={handleChange}
                 required
@@ -105,9 +105,8 @@ const Profile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
-                <Input
+                <PasswordInput
                   id="newPassword"
-                  type="password"
                   value={passwords.newPassword}
                   onChange={handleChange}
                   required
@@ -115,9 +114,8 @@ const Profile = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   value={passwords.confirmPassword}
                   onChange={handleChange}
                   required
