@@ -1,0 +1,216 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]:
+        - heading "Saurav Computer" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Fee Management System
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+          - generic [ref=e16]: Dashboard
+        - link "Admission" [ref=e17] [cursor=pointer]:
+          - /url: /admission
+          - img [ref=e18]
+          - generic [ref=e23]: Admission
+        - link "Students" [active] [ref=e24] [cursor=pointer]:
+          - /url: /students
+          - img [ref=e25]
+          - generic [ref=e30]: Students
+        - link "Fee Collection" [ref=e31] [cursor=pointer]:
+          - /url: /fee-collection
+          - img [ref=e32]
+          - generic [ref=e35]: Fee Collection
+        - link "Reports" [ref=e36] [cursor=pointer]:
+          - /url: /reports
+          - img [ref=e37]
+          - generic [ref=e40]: Reports
+        - link "Expenses" [ref=e41] [cursor=pointer]:
+          - /url: /expenses
+          - img [ref=e42]
+          - generic [ref=e45]: Expenses
+        - link "Settings" [ref=e46] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e47]
+          - generic [ref=e50]: Settings
+      - generic [ref=e52]:
+        - link "R rohanunbeg admin" [ref=e53] [cursor=pointer]:
+          - /url: /profile
+          - generic [ref=e54]: R
+          - generic [ref=e55]:
+            - generic [ref=e56]: rohanunbeg
+            - generic [ref=e57]: admin
+        - button "Logout" [ref=e58]:
+          - img [ref=e59]
+    - main [ref=e62]:
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - heading "Students" [level=2] [ref=e67]
+            - paragraph [ref=e68]: Manage your student records.
+          - button "New Admission" [ref=e69] [cursor=pointer]:
+            - img [ref=e70]
+            - text: New Admission
+        - generic [ref=e71]:
+          - generic [ref=e73]:
+            - heading "Student List" [level=3] [ref=e74]
+            - generic [ref=e75]:
+              - img [ref=e76]
+              - textbox "Search students..." [ref=e79]
+          - table [ref=e82]:
+            - rowgroup [ref=e83]:
+              - row "Name Mobile Course Batch Status Actions" [ref=e84]:
+                - columnheader "Name" [ref=e85]
+                - columnheader "Mobile" [ref=e86]
+                - columnheader "Course" [ref=e87]
+                - columnheader "Batch" [ref=e88]
+                - columnheader "Status" [ref=e89]
+                - columnheader "Actions" [ref=e90]
+            - rowgroup [ref=e91]:
+              - row "Reyansh Chopra 9741127294 mkcl course Mar 2025 Unpaid Edit Student Delete Student" [ref=e92]:
+                - cell "Reyansh Chopra" [ref=e93]:
+                  - generic [ref=e94]: Reyansh Chopra
+                - cell "9741127294" [ref=e95]
+                - cell "mkcl course" [ref=e96]
+                - cell "Mar 2025" [ref=e97]
+                - cell "Unpaid" [ref=e98]
+                - cell "Edit Student Delete Student" [ref=e99]:
+                  - generic [ref=e100]:
+                    - button "Edit Student" [ref=e101] [cursor=pointer]:
+                      - img [ref=e102]
+                    - button "Delete Student" [ref=e105] [cursor=pointer]:
+                      - img [ref=e106]
+              - row "Vivaan Sharma 9569294587 mkcl course Jan 2025 Unpaid Edit Student Delete Student" [ref=e109]:
+                - cell "Vivaan Sharma" [ref=e110]:
+                  - generic [ref=e111]: Vivaan Sharma
+                - cell "9569294587" [ref=e112]
+                - cell "mkcl course" [ref=e113]
+                - cell "Jan 2025" [ref=e114]
+                - cell "Unpaid" [ref=e115]
+                - cell "Edit Student Delete Student" [ref=e116]:
+                  - generic [ref=e117]:
+                    - button "Edit Student" [ref=e118] [cursor=pointer]:
+                      - img [ref=e119]
+                    - button "Delete Student" [ref=e122] [cursor=pointer]:
+                      - img [ref=e123]
+              - row "Reyansh Bhat 9228259968 mkcl course Jan 2025 Partial Edit Student Delete Student" [ref=e126]:
+                - cell "Reyansh Bhat" [ref=e127]:
+                  - generic [ref=e128]: Reyansh Bhat
+                - cell "9228259968" [ref=e129]
+                - cell "mkcl course" [ref=e130]
+                - cell "Jan 2025" [ref=e131]
+                - cell "Partial" [ref=e132]
+                - cell "Edit Student Delete Student" [ref=e133]:
+                  - generic [ref=e134]:
+                    - button "Edit Student" [ref=e135] [cursor=pointer]:
+                      - img [ref=e136]
+                    - button "Delete Student" [ref=e139] [cursor=pointer]:
+                      - img [ref=e140]
+              - row "Sai Gupta 9619923245 mkcl course Jan 2025 Partial Edit Student Delete Student" [ref=e143]:
+                - cell "Sai Gupta" [ref=e144]:
+                  - generic [ref=e145]: Sai Gupta
+                - cell "9619923245" [ref=e146]
+                - cell "mkcl course" [ref=e147]
+                - cell "Jan 2025" [ref=e148]
+                - cell "Partial" [ref=e149]
+                - cell "Edit Student Delete Student" [ref=e150]:
+                  - generic [ref=e151]:
+                    - button "Edit Student" [ref=e152] [cursor=pointer]:
+                      - img [ref=e153]
+                    - button "Delete Student" [ref=e156] [cursor=pointer]:
+                      - img [ref=e157]
+              - row "Reyansh Das 9624032694 mkcl course Apr 2025 Partial Edit Student Delete Student" [ref=e160]:
+                - cell "Reyansh Das" [ref=e161]:
+                  - generic [ref=e162]: Reyansh Das
+                - cell "9624032694" [ref=e163]
+                - cell "mkcl course" [ref=e164]
+                - cell "Apr 2025" [ref=e165]
+                - cell "Partial" [ref=e166]
+                - cell "Edit Student Delete Student" [ref=e167]:
+                  - generic [ref=e168]:
+                    - button "Edit Student" [ref=e169] [cursor=pointer]:
+                      - img [ref=e170]
+                    - button "Delete Student" [ref=e173] [cursor=pointer]:
+                      - img [ref=e174]
+              - row "Aadhya Jain 9611338468 gcc-tbc May 2025 Unpaid Edit Student Delete Student" [ref=e177]:
+                - cell "Aadhya Jain" [ref=e178]:
+                  - generic [ref=e179]: Aadhya Jain
+                - cell "9611338468" [ref=e180]
+                - cell "gcc-tbc" [ref=e181]
+                - cell "May 2025" [ref=e182]
+                - cell "Unpaid" [ref=e183]
+                - cell "Edit Student Delete Student" [ref=e184]:
+                  - generic [ref=e185]:
+                    - button "Edit Student" [ref=e186] [cursor=pointer]:
+                      - img [ref=e187]
+                    - button "Delete Student" [ref=e190] [cursor=pointer]:
+                      - img [ref=e191]
+              - row "Diya Singh 9631275810 gcc-tbc Feb 2025 Unpaid Edit Student Delete Student" [ref=e194]:
+                - cell "Diya Singh" [ref=e195]:
+                  - generic [ref=e196]: Diya Singh
+                - cell "9631275810" [ref=e197]
+                - cell "gcc-tbc" [ref=e198]
+                - cell "Feb 2025" [ref=e199]
+                - cell "Unpaid" [ref=e200]
+                - cell "Edit Student Delete Student" [ref=e201]:
+                  - generic [ref=e202]:
+                    - button "Edit Student" [ref=e203] [cursor=pointer]:
+                      - img [ref=e204]
+                    - button "Delete Student" [ref=e207] [cursor=pointer]:
+                      - img [ref=e208]
+              - row "Anvi Patel 9986521943 gcc-tbc Apr 2025 Unpaid Edit Student Delete Student" [ref=e211]:
+                - cell "Anvi Patel" [ref=e212]:
+                  - generic [ref=e213]: Anvi Patel
+                - cell "9986521943" [ref=e214]
+                - cell "gcc-tbc" [ref=e215]
+                - cell "Apr 2025" [ref=e216]
+                - cell "Unpaid" [ref=e217]
+                - cell "Edit Student Delete Student" [ref=e218]:
+                  - generic [ref=e219]:
+                    - button "Edit Student" [ref=e220] [cursor=pointer]:
+                      - img [ref=e221]
+                    - button "Delete Student" [ref=e224] [cursor=pointer]:
+                      - img [ref=e225]
+              - row "Riya Chopra 9300890839 mscit Jan 2025 Partial Edit Student Delete Student" [ref=e228]:
+                - cell "Riya Chopra" [ref=e229]:
+                  - generic [ref=e230]: Riya Chopra
+                - cell "9300890839" [ref=e231]
+                - cell "mscit" [ref=e232]
+                - cell "Jan 2025" [ref=e233]
+                - cell "Partial" [ref=e234]
+                - cell "Edit Student Delete Student" [ref=e235]:
+                  - generic [ref=e236]:
+                    - button "Edit Student" [ref=e237] [cursor=pointer]:
+                      - img [ref=e238]
+                    - button "Delete Student" [ref=e241] [cursor=pointer]:
+                      - img [ref=e242]
+              - row "Aaradhya Chopra 9523189176 mscit Mar 2025 Partial Edit Student Delete Student" [ref=e245]:
+                - cell "Aaradhya Chopra" [ref=e246]:
+                  - generic [ref=e247]: Aaradhya Chopra
+                - cell "9523189176" [ref=e248]
+                - cell "mscit" [ref=e249]
+                - cell "Mar 2025" [ref=e250]
+                - cell "Partial" [ref=e251]
+                - cell "Edit Student Delete Student" [ref=e252]:
+                  - generic [ref=e253]:
+                    - button "Edit Student" [ref=e254] [cursor=pointer]:
+                      - img [ref=e255]
+                    - button "Delete Student" [ref=e258] [cursor=pointer]:
+                      - img [ref=e259]
+        - generic [ref=e262]:
+          - generic [ref=e263]: Page 1 of 5
+          - button "Previous" [disabled]:
+            - img
+            - text: Previous
+          - button "Next" [ref=e264] [cursor=pointer]:
+            - text: Next
+            - img [ref=e265]
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e267]:
+        - img [ref=e269]
+        - generic [ref=e272]: Welcome back!
+```

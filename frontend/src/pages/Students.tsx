@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import axios from 'axios';
 import { Plus, Search, Edit, Trash2 /*, MessageCircle*/ } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +26,9 @@ const Students = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchStudents = async (pageNum = 1, search = searchQuery) => {
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  const fetchStudents = async (pageNum = 1, search = debouncedSearch) => {
     try {
       setIsLoading(true);
       let url = `${API_URL}/api/students?page=${pageNum}&limit=10`;
@@ -44,19 +47,15 @@ const Students = () => {
     }
   };
 
+  // Reset page when search query changes
   useEffect(() => {
-    // Debounce search
-    const timer = setTimeout(() => {
-      setPage(1); // Reset to page 1 on search change
-      fetchStudents(1, searchQuery);
-    }, 500);
+    setPage(1);
+  }, [debouncedSearch]);
 
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
+  // Fetch students when page or debounced search changes
   useEffect(() => {
-    fetchStudents(page);
-  }, [page]);
+    fetchStudents(page, debouncedSearch);
+  }, [page, debouncedSearch]);
 
   const handleDeleteClick = (id: string) => {
     setDeleteId(id);
