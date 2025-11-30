@@ -56,7 +56,7 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json({ limit: '10kb' })); // Limit body size
+app.use(express.json({ limit: '50mb' })); // Limit body size
 const morganFormat = ':method :url :status :res[content-length] - :response-time ms';
 
 app.use(

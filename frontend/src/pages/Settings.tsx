@@ -339,8 +339,10 @@ const BackupRestoreSection = () => {
                     try {
                       const jsonData = JSON.parse(event.target?.result as string);
                       await axios.post(`${API_URL}/api/backup/import`, jsonData);
-                      toast.success('Data imported successfully! Please refresh.');
-                      window.location.reload();
+                      toast.success('Data imported successfully! Reloading...');
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 2000);
                     } catch (error) {
                       console.error('Import failed:', error);
                       toast.error('Import failed. Invalid file format.');
