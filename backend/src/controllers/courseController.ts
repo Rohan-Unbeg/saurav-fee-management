@@ -31,12 +31,37 @@ export const createCourse = async (req: Request, res: Response) => {
 export const updateCourse = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { name, duration, standardFee, updateStudents } = req.body;
+    
     const course = await Course.findById(id);
     if (course) {
-      course.name = req.body.name || course.name;
-      course.duration = req.body.duration || course.duration;
-      course.standardFee = req.body.standardFee || course.standardFee;
+      course.name = name || course.name;
+      course.duration = duration || course.duration;
+      course.standardFee = standardFee || course.standardFee;
       const updatedCourse = await course.save();
+      
+      // Bulk update students if requested
+      if (updateStudents && standardFee) {
+        const students = await Student.find({ courseId: id });
+        for (const student of students) {
+          // Only update if fee is different
+          if (student.totalFeeCommitted !== Number(standardFee)) {
+            student.totalFeeCommitted = Number(standardFee);
+            student.pendingAmount = student.totalFeeCommitted - student.totalPaid;
+            
+            // Update status
+            if (student.pendingAmount <= 0) {
+              student.status = 'Paid';
+              student.pendingAmount = 0; // Prevent negative pending
+            } else if (student.totalPaid > 0) {
+              student.status = 'Partial';
+            } else {
+              student.status = 'Unpaid';
+            }
+            await student.save();
+          }
+        }
+      }
       
       await logAudit('UPDATE', 'Course', (updatedCourse._id as any).toString(), (req as AuthRequest).user?.id, req.body);
       

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, IndianRupee, FileText, Settings, LogOut, TrendingDown, X, User } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, IndianRupee, FileText, Settings, LogOut, TrendingDown, X, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 

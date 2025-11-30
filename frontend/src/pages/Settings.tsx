@@ -52,6 +52,7 @@ const Settings = () => {
       name: course.name,
       duration: course.duration,
       standardFee: course.standardFee,
+      updateStudents: false,
     });
     setIsModalOpen(true);
   };
@@ -92,7 +93,7 @@ const Settings = () => {
       }
       setIsModalOpen(false);
       setEditingCourse(null);
-      setFormData({ name: '', duration: '', standardFee: 0 });
+      setFormData({ name: '', duration: '', standardFee: 0, updateStudents: false });
       fetchCourses();
     } catch (error: any) {
       console.error('Error saving course:', error);
@@ -103,7 +104,7 @@ const Settings = () => {
 
   const openNewCourseModal = () => {
     setEditingCourse(null);
-    setFormData({ name: '', duration: '', standardFee: 0 });
+    setFormData({ name: '', duration: '', standardFee: 0, updateStudents: false });
     setIsModalOpen(true);
   };
 
@@ -217,6 +218,22 @@ const Settings = () => {
               required 
             />
           </div>
+          
+          {editingCourse && (
+            <div className="flex items-center space-x-2 pt-2">
+              <input
+                type="checkbox"
+                id="updateStudents"
+                checked={formData.updateStudents}
+                onChange={(e) => setFormData({...formData, updateStudents: e.target.checked})}
+                className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor="updateStudents" className="text-sm font-normal cursor-pointer">
+                Update fee for existing students?
+              </Label>
+            </div>
+          )}
+
           <Button type="submit" className="w-full">
             {editingCourse ? 'Update Course' : 'Create Course'}
           </Button>

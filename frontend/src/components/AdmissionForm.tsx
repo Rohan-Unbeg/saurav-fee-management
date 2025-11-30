@@ -65,6 +65,11 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
+    // Name Validation: Allow letters, spaces, hyphens, apostrophes
+    if (name === 'firstName' || name === 'lastName') {
+      if (value && !/^[a-zA-Z\s\-\']*$/.test(value)) return;
+    }
+
     // Strict Number Validation for Mobile and Fee
     if (name === 'studentMobile' || name === 'parentMobile') {
       if (value && !/^\d*$/.test(value)) return; // Only allow digits
@@ -287,7 +292,8 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
           name="totalFeeCommitted" 
           value={formData.totalFeeCommitted} 
           onChange={handleChange} 
-          className={errors.totalFeeCommitted ? 'border-red-500' : ''}
+          className={errors.totalFeeCommitted ? 'border-red-500 bg-slate-100' : 'bg-slate-100'}
+          readOnly
         />
         {errors.totalFeeCommitted && <p className="text-xs text-red-500">{errors.totalFeeCommitted}</p>}
       </div>

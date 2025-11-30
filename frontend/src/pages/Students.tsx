@@ -20,6 +20,7 @@ const Students = () => {
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -138,7 +139,8 @@ const Students = () => {
                               <img 
                                 src={`${API_URL}${student.photoUrl}`} 
                                 alt={student.firstName} 
-                                className="w-8 h-8 rounded-full object-cover"
+                                className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => setSelectedImage(student.photoUrl)}
                               />
                             )}
                             {student.firstName} {student.lastName}
@@ -239,6 +241,21 @@ const Students = () => {
         variant="destructive"
         confirmText="Delete"
       />
+
+      {/* Image View Modal */}
+      <Modal
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+        title="Student Photo"
+      >
+        <div className="flex justify-center">
+          <img 
+            src={selectedImage ? `${API_URL}${selectedImage}` : ''} 
+            alt="Student" 
+            className="max-w-full max-h-[60vh] object-contain rounded-md"
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

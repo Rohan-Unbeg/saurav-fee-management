@@ -79,7 +79,7 @@ export const createStudent = async (req: Request, res: Response) => {
     const {
       firstName, lastName, dob, gender, address,
       studentMobile, parentMobile, courseId, batch,
-      admissionDate, totalFeeCommitted, discount
+      admissionDate, totalFeeCommitted, discount, nextInstallmentDate
     } = req.body;
 
     const photoUrl = req.file ? `/uploads/${req.file.filename}` : '';
@@ -97,7 +97,8 @@ export const createStudent = async (req: Request, res: Response) => {
       firstName, lastName, photoUrl, dob, gender, address,
       studentMobile, parentMobile, courseId, batch,
       admissionDate, totalFeeCommitted: finalFee, totalPaid: 0, pendingAmount,
-      status: 'Unpaid'
+      status: 'Unpaid',
+      nextInstallmentDate
     });
 
     const createdStudent = await student.save();

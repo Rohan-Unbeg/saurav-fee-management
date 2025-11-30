@@ -15,12 +15,16 @@ router.get('/export', async (req, res) => {
     const students = await Student.find();
     const transactions = await Transaction.find();
     const expenses = await Expense.find();
+    const users = await User.find();
+    const counters = await Counter.find();
 
     res.json({
       courses,
       students,
       transactions,
       expenses,
+      users,
+      counters,
       timestamp: new Date()
     });
   } catch (error) {
@@ -30,7 +34,7 @@ router.get('/export', async (req, res) => {
 
 router.post('/import', async (req, res) => {
   try {
-    const { courses, students, transactions, expenses } = req.body;
+    const { courses, students, transactions, expenses, users, counters } = req.body;
 
     if (courses) {
       await Course.deleteMany({});
@@ -47,6 +51,14 @@ router.post('/import', async (req, res) => {
     if (expenses) {
       await Expense.deleteMany({});
       await Expense.insertMany(expenses);
+    }
+    if (users) {
+      await User.deleteMany({});
+      await User.insertMany(users);
+    }
+    if (counters) {
+      await Counter.deleteMany({});
+      await Counter.insertMany(counters);
     }
 
     res.json({ message: 'Data imported successfully' });

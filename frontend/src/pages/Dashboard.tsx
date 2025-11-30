@@ -179,9 +179,9 @@ const Dashboard = () => {
             <CardTitle>Monthly Collection Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <div style={{ width: '100%', height: 300 }}>
+            <div className="h-[300px] w-full">
               {stats.monthlyStats.length > 0 ? (
-                <ResponsiveContainer width="99%" height="100%" minHeight={300}>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.monthlyStats}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis 
