@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Users, IndianRupee, AlertCircle, ArrowRight } from 'lucide-react';
+import { Users, IndianRupee, AlertCircle, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +12,8 @@ interface DashboardStats {
   totalStudents: number;
   todaysCollection: number;
   totalPending: number;
+  totalExpenses: number;
+  netBalance: number;
   monthlyStats: { name: string; total: number }[];
 }
 
@@ -20,6 +22,8 @@ const Dashboard = () => {
     totalStudents: 0,
     todaysCollection: 0,
     totalPending: 0,
+    totalExpenses: 0,
+    netBalance: 0,
     monthlyStats: [],
   });
 
@@ -70,6 +74,20 @@ const Dashboard = () => {
       color: "text-destructive",
       bg: "bg-destructive/10",
     },
+    {
+      title: "Total Expenses",
+      value: `₹${stats.totalExpenses.toLocaleString()}`,
+      icon: TrendingDown,
+      color: "text-red-500",
+      bg: "bg-red-100",
+    },
+    {
+      title: "Net Balance",
+      value: `₹${stats.netBalance.toLocaleString()}`,
+      icon: TrendingUp,
+      color: stats.netBalance >= 0 ? "text-green-600" : "text-red-600",
+      bg: stats.netBalance >= 0 ? "bg-green-100" : "bg-red-100",
+    },
   ];
 
   if (isLoading) {
@@ -80,8 +98,8 @@ const Dashboard = () => {
           <Skeleton className="h-4 w-64" />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {[1, 2, 3].map((i) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {[1, 2, 3, 4, 5].map((i) => (
             <Card key={i}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <Skeleton className="h-4 w-24" />
@@ -134,7 +152,7 @@ const Dashboard = () => {
         <p className="text-slate-500">Overview of your institute's performance.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (

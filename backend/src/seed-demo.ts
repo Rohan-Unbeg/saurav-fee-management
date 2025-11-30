@@ -39,7 +39,7 @@ const seedDemoData = async () => {
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - 6); // 6 months ago
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 50; i++) {
       // Ensure different courses for the first two students who share a mobile
       let course = getRandomElement(courses);
       if (i === 0) course = courses[0];
@@ -57,10 +57,10 @@ const seedDemoData = async () => {
       let paid = 0;
       let status: 'Paid' | 'Partial' | 'Unpaid' = 'Unpaid';
 
-      if (rand > 0.6) {
+      if (rand > 0.3) { // 70% Paid
         paid = totalFee;
         status = 'Paid';
-      } else if (rand > 0.3) {
+      } else if (rand > 0.1) { // 20% Partial
         paid = Math.floor(totalFee / 2);
         status = 'Partial';
       }
@@ -115,10 +115,10 @@ const seedDemoData = async () => {
 
     // 2. Create Expenses
     const expenses = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 15; i++) {
       expenses.push(new Expense({
         title: getRandomElement(expenseCategories),
-        amount: getRandomInt(500, 15000),
+        amount: getRandomInt(200, 3000),
         category: getRandomElement(expenseCategories),
         date: getRandomDate(startDate, new Date()),
         description: 'Demo Expense Entry'

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Student from '../models/Student';
 import Transaction from '../models/Transaction';
+import Expense from '../models/Expense';
 
 export const getStats = async (req: Request, res: Response) => {
   try {
@@ -19,6 +20,20 @@ export const getStats = async (req: Request, res: Response) => {
 
     const students = await Student.find();
     const totalPending = students.reduce((acc, curr) => acc + curr.pendingAmount, 0);
+
+    // Calculate Total Collection (All Time)
+    const totalCollectionResult = await Transaction.aggregate([
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    const totalCollection = totalCollectionResult[0]?.total || 0;
+
+    // Calculate Total Expenses (All Time)
+    const totalExpensesResult = await Expense.aggregate([
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    const totalExpenses = totalExpensesResult[0]?.total || 0;
+
+    const netBalance = totalCollection - totalExpenses;
 
     // Monthly Collection (Last 6 Months)
     const sixMonthsAgo = new Date();
@@ -48,6 +63,8 @@ export const getStats = async (req: Request, res: Response) => {
       totalStudents,
       todaysCollection,
       totalPending,
+      totalExpenses,
+      netBalance,
       monthlyStats: formattedMonthlyStats
     });
   } catch (error) {
