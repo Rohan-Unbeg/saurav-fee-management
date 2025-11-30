@@ -25,12 +25,15 @@ export const seedDatabase = async (req: Request, res: Response) => {
     await Counter.deleteMany({});
 
     // 2. Create Users
-    const hashedPassword = await bcrypt.hash('Admin@123', 10);
+    // 2. Create Users
+    const superAdminPassword = await bcrypt.hash('Super@Rohan2025!', 10);
+    const adminPassword = await bcrypt.hash('admin@123', 10);
+    const staffPassword = await bcrypt.hash('staff@123', 10);
 
     // Super Admin
     await User.create({
-      username: 'Rohan Unbeg',
-      password: hashedPassword,
+      username: 'rohanunbeg',
+      password: superAdminPassword,
       role: 'admin',
       isSuperAdmin: true
     });
@@ -38,7 +41,7 @@ export const seedDatabase = async (req: Request, res: Response) => {
     // Secondary Admin
     await User.create({
       username: 'admin',
-      password: hashedPassword,
+      password: adminPassword,
       role: 'admin',
       isSuperAdmin: false
     });
@@ -46,7 +49,7 @@ export const seedDatabase = async (req: Request, res: Response) => {
     // Staff
     await User.create({
       username: 'staff',
-      password: hashedPassword,
+      password: staffPassword,
       role: 'staff',
       isSuperAdmin: false
     });

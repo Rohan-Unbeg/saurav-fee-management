@@ -182,7 +182,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="pl-2">
             <div className="overflow-x-auto">
-              <div className="h-[300px] w-full min-w-[500px]">
+              <div className="h-[300px] w-full min-w-[500px]" style={{ minHeight: '300px' }}>
                 {stats.monthlyStats.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={stats.monthlyStats}>

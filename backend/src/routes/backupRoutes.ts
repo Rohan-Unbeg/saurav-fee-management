@@ -36,33 +36,41 @@ router.post('/import', async (req, res) => {
   try {
     const { courses, students, transactions, expenses, users, counters } = req.body;
 
+    console.log('Importing backup data...');
+
+    // Validate at least one field exists
+    if (!courses && !students && !transactions && !expenses && !users && !counters) {
+        return res.status(400).json({ message: 'Invalid backup file: No data found.' });
+    }
+
     if (courses) {
       await Course.deleteMany({});
-      await Course.insertMany(courses);
+      if (courses.length > 0) await Course.insertMany(courses);
     }
     if (students) {
       await Student.deleteMany({});
-      await Student.insertMany(students);
+      if (students.length > 0) await Student.insertMany(students);
     }
     if (transactions) {
       await Transaction.deleteMany({});
-      await Transaction.insertMany(transactions);
+      if (transactions.length > 0) await Transaction.insertMany(transactions);
     }
     if (expenses) {
       await Expense.deleteMany({});
-      await Expense.insertMany(expenses);
+      if (expenses.length > 0) await Expense.insertMany(expenses);
     }
     if (users) {
       await User.deleteMany({});
-      await User.insertMany(users);
+      if (users.length > 0) await User.insertMany(users);
     }
     if (counters) {
       await Counter.deleteMany({});
-      await Counter.insertMany(counters);
+      if (counters.length > 0) await Counter.insertMany(counters);
     }
 
     res.json({ message: 'Data imported successfully' });
   } catch (error) {
+    console.error('Import failed:', error);
     res.status(500).json({ message: (error as Error).message });
   }
 });
