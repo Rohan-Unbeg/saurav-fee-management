@@ -46,7 +46,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       )}>
         <div className="p-6 border-b border-white/10 flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-white">
               Saurav Computer
             </h1>
             <p className="text-xs text-blue-200 mt-1">Fee Management System</p>

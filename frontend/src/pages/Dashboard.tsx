@@ -175,48 +175,50 @@ const Dashboard = () => {
         })}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-7">
-        <Card className="col-span-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-7">
+        <Card className="col-span-1 md:col-span-4">
           <CardHeader>
             <CardTitle>Monthly Collection Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <div className="h-[300px] w-full">
-              {stats.monthlyStats.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.monthlyStats}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="#888888" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false} 
-                    />
-                    <YAxis 
-                      stroke="#888888" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickFormatter={(value) => `₹${value}`} 
-                    />
-                    <Tooltip 
-                      cursor={{ fill: 'transparent' }}
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={40} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex h-full items-center justify-center text-slate-500">
-                  No data available for the chart.
-                </div>
-              )}
+            <div className="overflow-x-auto">
+              <div className="h-[300px] w-full min-w-[500px]">
+                {stats.monthlyStats.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={stats.monthlyStats}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="#888888" 
+                        fontSize={12} 
+                        tickLine={false} 
+                        axisLine={false} 
+                      />
+                      <YAxis 
+                        stroke="#888888" 
+                        fontSize={12} 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickFormatter={(value) => `₹${value}`} 
+                      />
+                      <Tooltip 
+                        cursor={{ fill: 'transparent' }}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={40} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-slate-500">
+                    No data available for the chart.
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
+        <Card className="col-span-1 md:col-span-3">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
             <Link to="/reports" state={{ activeTab: 'collection' }}>
@@ -261,13 +263,13 @@ const Dashboard = () => {
         </Card>
 
         {/* Upcoming Installments Card */}
-        <Card className="col-span-4 md:col-span-7 lg:col-span-4">
+        <Card className="col-span-1 md:col-span-7 lg:col-span-4">
           <CardHeader>
             <CardTitle>Upcoming Installments (Next 7 Days)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
+              <table className="w-full text-sm text-left min-w-[500px]">
                 <thead className="text-xs text-slate-500 uppercase bg-slate-50">
                   <tr>
                     <th className="px-4 py-3">Student</th>

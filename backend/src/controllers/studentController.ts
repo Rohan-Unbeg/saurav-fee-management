@@ -82,7 +82,7 @@ export const createStudent = async (req: Request, res: Response) => {
       admissionDate, totalFeeCommitted, discount, nextInstallmentDate
     } = req.body;
 
-    const photoUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const photoUrl = req.file ? req.file.path : '';
 
     // Calculate fees
     const course = await Course.findById(courseId);
@@ -129,7 +129,7 @@ export const updateStudent = async (req: Request, res: Response) => {
     if (student) {
       const updateData = req.body;
       if (req.file) {
-        updateData.photoUrl = `/uploads/${req.file.filename}`;
+        updateData.photoUrl = req.file.path;
       }
       
       // Capture old fee before applying updates

@@ -1,0 +1,42 @@
+[
+  {
+    "_id": "692be1be9a3e5fc378f816c0",
+    "name": "mscit",
+    "duration": "6 Months",
+    "standardFee": 5000,
+    "isDeleted": false,
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:38.257Z",
+    "updatedAt": "2025-11-30T06:18:38.257Z"
+  },
+  {
+    "_id": "692be1be9a3e5fc378f816c1",
+    "name": "gcc-tbc",
+    "duration": "3 Months",
+    "standardFee": 3500,
+    "isDeleted": false,
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:38.257Z",
+    "updatedAt": "2025-11-30T06:18:38.257Z"
+  },
+  {
+    "_id": "692be1be9a3e5fc378f816c2",
+    "name": "mkcl course",
+    "duration": "1 Year",
+    "standardFee": 18000,
+    "isDeleted": false,
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:38.257Z",
+    "updatedAt": "2025-11-30T18:06:46.517Z"
+  },
+  {
+    "_id": "692c6726235abf7c813fc29f",
+    "name": "editing",
+    "duration": "2 month",
+    "standardFee": 4500,
+    "isDeleted": true,
+    "createdAt": "2025-11-30T15:47:50.097Z",
+    "updatedAt": "2025-11-30T15:48:08.693Z",
+    "__v": 0
+  }
+]

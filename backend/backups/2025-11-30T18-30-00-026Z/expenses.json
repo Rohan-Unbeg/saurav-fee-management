@@ -1,0 +1,178 @@
+[
+  {
+    "_id": "692be1c8440d0ad1125f9584",
+    "title": "Rent",
+    "amount": 1622,
+    "category": "Electricity",
+    "date": "2025-06-29T03:31:01.615Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9585",
+    "title": "Maintenance",
+    "amount": 1541,
+    "category": "Office Supplies",
+    "date": "2025-11-21T22:28:59.222Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9586",
+    "title": "Office Supplies",
+    "amount": 2474,
+    "category": "Maintenance",
+    "date": "2025-09-07T19:04:22.764Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9587",
+    "title": "Office Supplies",
+    "amount": 2965,
+    "category": "Internet",
+    "date": "2025-08-22T09:01:47.461Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9588",
+    "title": "Maintenance",
+    "amount": 1234,
+    "category": "Maintenance",
+    "date": "2025-09-14T13:06:11.173Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9589",
+    "title": "Maintenance",
+    "amount": 1166,
+    "category": "Rent",
+    "date": "2025-06-17T11:51:38.696Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f958a",
+    "title": "Marketing",
+    "amount": 2682,
+    "category": "Marketing",
+    "date": "2025-08-04T03:53:17.796Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f958b",
+    "title": "Maintenance",
+    "amount": 657,
+    "category": "Marketing",
+    "date": "2025-07-28T04:46:08.422Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f958c",
+    "title": "Electricity",
+    "amount": 2280,
+    "category": "Rent",
+    "date": "2025-08-02T12:04:21.874Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f958d",
+    "title": "Office Supplies",
+    "amount": 625,
+    "category": "Internet",
+    "date": "2025-07-26T21:29:46.938Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f958e",
+    "title": "Rent",
+    "amount": 2368,
+    "category": "Marketing",
+    "date": "2025-06-01T12:56:46.444Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f958f",
+    "title": "Electricity",
+    "amount": 1501,
+    "category": "Internet",
+    "date": "2025-08-01T09:26:32.925Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9590",
+    "title": "Internet",
+    "amount": 287,
+    "category": "Rent",
+    "date": "2025-10-23T02:42:53.778Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9591",
+    "title": "Internet",
+    "amount": 1249,
+    "category": "Staff Salary",
+    "date": "2025-08-30T06:01:23.676Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692be1c8440d0ad1125f9592",
+    "title": "Internet",
+    "amount": 667,
+    "category": "Staff Salary",
+    "date": "2025-09-05T21:01:38.341Z",
+    "description": "Demo Expense Entry",
+    "__v": 0,
+    "createdAt": "2025-11-30T06:18:48.761Z",
+    "updatedAt": "2025-11-30T06:18:48.761Z"
+  },
+  {
+    "_id": "692c6701235abf7c813fc297",
+    "title": "office rent",
+    "amount": 5000,
+    "category": "Rent",
+    "date": "2025-11-30T00:00:00.000Z",
+    "description": "",
+    "createdAt": "2025-11-30T15:47:13.934Z",
+    "updatedAt": "2025-11-30T15:47:13.934Z",
+    "__v": 0
+  }
+]
