@@ -15,6 +15,7 @@ interface DashboardStats {
   totalExpenses: number;
   netBalance: number;
   monthlyStats: { name: string; total: number }[];
+  upcomingDues: any[];
 }
 
 const Dashboard = () => {
@@ -25,6 +26,7 @@ const Dashboard = () => {
     totalExpenses: 0,
     netBalance: 0,
     monthlyStats: [],
+    upcomingDues: [],
   });
 
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
@@ -249,6 +251,48 @@ const Dashboard = () => {
                     <tr>
                       <td colSpan={2} className="px-4 py-4 text-center text-slate-500">
                         No recent transactions.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Installments Card */}
+        <Card className="col-span-4 md:col-span-7 lg:col-span-4">
+          <CardHeader>
+            <CardTitle>Upcoming Installments (Next 7 Days)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+                  <tr>
+                    <th className="px-4 py-3">Student</th>
+                    <th className="px-4 py-3">Course</th>
+                    <th className="px-4 py-3">Due Date</th>
+                    <th className="px-4 py-3 text-right">Pending</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.upcomingDues?.map((student: any) => (
+                    <tr key={student._id} className="bg-white border-b hover:bg-slate-50">
+                      <td className="px-4 py-3 font-medium">
+                        {student.firstName} {student.lastName}
+                      </td>
+                      <td className="px-4 py-3">{student.courseId?.name}</td>
+                      <td className="px-4 py-3 text-red-500 font-medium">
+                        {new Date(student.nextInstallmentDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold text-slate-700">₹{student.pendingAmount}</td>
+                    </tr>
+                  ))}
+                  {(!stats.upcomingDues || stats.upcomingDues.length === 0) && (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-4 text-center text-slate-500">
+                        No upcoming installments in the next 7 days.
                       </td>
                     </tr>
                   )}

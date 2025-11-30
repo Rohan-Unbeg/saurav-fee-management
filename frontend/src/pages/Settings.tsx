@@ -24,10 +24,16 @@ const Settings = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    duration: string;
+    standardFee: number;
+    updateStudents?: boolean;
+  }>({
     name: '',
     duration: '',
     standardFee: 0,
+    updateStudents: false,
   });
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

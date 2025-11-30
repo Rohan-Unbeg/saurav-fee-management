@@ -59,13 +59,26 @@ export const getStats = async (req: Request, res: Response) => {
       };
     });
 
+    // Upcoming Dues (Next 7 Days)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
+    nextWeek.setHours(23, 59, 59, 999);
+
+    const upcomingDues = await Student.find({
+      nextInstallmentDate: { $gte: today, $lte: nextWeek },
+      pendingAmount: { $gt: 0 }
+    }).select('firstName lastName courseId pendingAmount nextInstallmentDate').populate('courseId', 'name');
+
     res.json({
       totalStudents,
       todaysCollection,
       totalPending,
       totalExpenses,
       netBalance,
-      monthlyStats: formattedMonthlyStats
+      monthlyStats: formattedMonthlyStats,
+      upcomingDues
     });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
