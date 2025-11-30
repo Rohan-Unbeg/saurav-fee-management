@@ -8,7 +8,17 @@ const router = express.Router();
 
 // Configure multer for file upload
 import { storage } from '../config/cloudinary';
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 1024 * 1024 }, // 1MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
+});
 
 import { checkRole } from '../middleware/checkRole';
 

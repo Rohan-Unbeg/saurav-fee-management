@@ -85,7 +85,23 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, photo: e.target.files[0] });
+      const file = e.target.files[0];
+      
+      // Validate File Type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Only image files (JPG, PNG, WEBP) are allowed');
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      // Validate File Size (1MB)
+      if (file.size > 1024 * 1024) {
+        toast.error('File size must be less than 1MB');
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      setFormData({ ...formData, photo: file });
     }
   };
 
