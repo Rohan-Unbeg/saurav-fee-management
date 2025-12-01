@@ -9,23 +9,37 @@ import { logAudit } from '../utils/auditLogger';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
+    console.log('Register Request:', { username, passwordProvided: !!password, role });
 
     // Password Strength Validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({ 
-        message: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.' 
-      });
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
+    }
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one uppercase letter.' });
+    }
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one lowercase letter.' });
+    }
+    if (!/\d/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one number.' });
     }
 
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      console.log('User already exists');
+      return res.status(400).json({ message: `User '${username}' already exists.` });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword });
+    // Use the role from body, defaulting to 'staff' if not provided (or whatever logic you prefer)
+    // Note: User model defaults to 'admin', but here we want to respect the requested role.
+    const user = new User({ 
+      username, 
+      password: hashedPassword,
+      role: role || 'staff' 
+    });
     await user.save();
     
     await logAudit('REGISTER', 'User', (user._id as any).toString(), undefined, { username });

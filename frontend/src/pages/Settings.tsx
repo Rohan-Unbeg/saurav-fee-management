@@ -357,41 +357,7 @@ const BackupRestoreSection = () => {
             </div>
           </div>
 
-          <div className="border-t pt-4">
-            <h4 className="text-sm font-medium mb-3">Restore from Auto-Backup (Server)</h4>
-            <div className="flex flex-col md:flex-row gap-4">
-              <select 
-                className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
-                value={selectedBackup}
-                onChange={(e) => setSelectedBackup(e.target.value)}
-              >
-                <option value="">Select a backup point...</option>
-                {backups.map((backup) => {
-                  const parts = backup.split('T');
-                  const datePart = parts[0];
-                  const timePart = parts[1].replace(/-/g, ':').replace('Z', '');
-                  const displayDate = new Date(`${datePart}T${timePart}`).toLocaleString();
-                  
-                  return (
-                    <option key={backup} value={backup}>
-                      {displayDate !== 'Invalid Date' ? displayDate : backup}
-                    </option>
-                  );
-                })}
-              </select>
-              <Button 
-                variant="destructive" 
-                onClick={handleRestoreClick}
-                disabled={!selectedBackup || isLoading}
-                className="w-full md:w-auto"
-              >
-                {isLoading ? 'Restoring...' : 'Restore Selected Backup'}
-              </Button>
-            </div>
-            <p className="text-xs text-slate-500 mt-2">
-              Select a timestamp to restore the system to that state. This is irreversible.
-            </p>
-          </div>
+
         </CardContent>
       </Card>
 
@@ -442,6 +408,8 @@ const UserManagement = () => {
       setFormData({ username: '', password: '', role: 'staff' });
       fetchUsers();
     } catch (error: any) {
+      console.error('Registration Error:', error);
+      console.log('Error Response:', error.response);
       toast.error(error.response?.data?.message || 'Failed to create user');
     } finally {
       setLoading(false);

@@ -62,9 +62,6 @@ export const performBackup = async () => {
 };
 
 export const scheduleBackups = () => {
-  // Schedule task to run at 00:00 every day
-  cron.schedule('0 0 * * *', () => {
-    performBackup();
-  });
-  console.log('Backup scheduler initialized: Running daily at 00:00');
+  // Automated backups disabled as per user request (server environment limitations)
+  console.log('Automated backups are disabled.');
 };

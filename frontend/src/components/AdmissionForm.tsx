@@ -348,10 +348,12 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
         </div>
       )}
 
+
+
       <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
         <div className="flex justify-between items-center text-sm">
-          <span className="text-slate-500">Total Fee:</span>
-          <span className="font-medium">₹{formData.totalFeeCommitted}</span>
+          <span className="text-slate-500">Standard Course Fee:</span>
+          <span className="font-medium">₹{courses.find(c => c._id === formData.courseId)?.standardFee || 0}</span>
         </div>
         
         {/* Show Initial Payment for New Admission */}
@@ -371,10 +373,27 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
         )}
 
         <div className="flex justify-between items-center text-base font-bold mt-2 pt-2 border-t border-slate-200">
-          <span>Pending Amount:</span>
-          <span className="text-red-600">
-            ₹{Math.max(0, Number(formData.totalFeeCommitted) - (student ? student.totalPaid : Number(formData.initialPayment)))}
-          </span>
+          {(() => {
+            const total = Number(formData.totalFeeCommitted);
+            const paid = student ? student.totalPaid : Number(formData.initialPayment);
+            const balance = total - paid;
+
+            if (balance >= 0) {
+              return (
+                <>
+                  <span>Pending Amount:</span>
+                  <span className="text-red-600">₹{balance}</span>
+                </>
+              );
+            } else {
+              return (
+                <>
+                  <span>Excess Amount:</span>
+                  <span className="text-orange-600">₹{Math.abs(balance)} (Invalid)</span>
+                </>
+              );
+            }
+          })()}
         </div>
       </div>
 

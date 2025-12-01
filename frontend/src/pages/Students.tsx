@@ -225,7 +225,7 @@ const Students = () => {
                     {students.length === 0 && (
                       <tr>
                         <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                          No students found matching "{searchQuery}"
+                          {searchQuery ? `No students found matching "${searchQuery}"` : 'No students found.'}
                         </td>
                       </tr>
                     )}
