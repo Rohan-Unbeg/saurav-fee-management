@@ -188,6 +188,8 @@ const Settings = () => {
 
 
       <BackupRestoreSection />
+      
+      <DangerZone />
 
       <Modal
         isOpen={isModalOpen}
@@ -568,6 +570,94 @@ const UserManagement = () => {
         variant="destructive"
         confirmText="Delete User"
       />
+    </>
+  );
+};
+
+const DangerZone = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+
+  // Only Admin can access Danger Zone
+  if (user?.role !== 'admin') return null;
+
+  const handleClearData = async () => {
+    if (confirmText !== 'delete students') return;
+    
+    setIsLoading(true);
+    try {
+      await axios.delete(`${API_URL}/api/seed/students`);
+      toast.success('All student data cleared successfully');
+      setIsModalOpen(false);
+      setConfirmText('');
+      // Optional: reload to reflect changes if needed, though not strictly necessary for Settings page
+    } catch (error: any) {
+      console.error('Error clearing data:', error);
+      toast.error(error.response?.data?.message || 'Failed to clear data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Card className="border-red-200 bg-red-50">
+        <CardHeader>
+          <CardTitle className="text-red-700">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h4 className="font-bold text-red-900">Clear Student Data</h4>
+              <p className="text-sm text-red-700">
+                Permanently delete all students, transactions, and expenses. This action cannot be undone.
+              </p>
+            </div>
+            <Button 
+              variant="destructive" 
+              onClick={() => setIsModalOpen(true)}
+            >
+              Clear Student Data
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setConfirmText(''); }}
+        title="⚠️ Irreversible Action"
+      >
+        <div className="space-y-4">
+          <div className="bg-red-100 border border-red-200 text-red-800 p-4 rounded-md text-sm">
+            <strong>Warning:</strong> You are about to delete <strong>ALL</strong> students, fees, and expense records. 
+            This action is <strong>permanent</strong> and cannot be undone.
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="text-slate-700">
+              Please type <span className="font-mono font-bold select-all">delete students</span> to confirm.
+            </Label>
+            <Input 
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="Type 'delete students'"
+              className="font-mono"
+            />
+          </div>
+
+          <Button 
+            variant="destructive" 
+            className="w-full"
+            disabled={confirmText !== 'delete students' || isLoading}
+            onClick={handleClearData}
+          >
+            {isLoading ? 'Deleting...' : 'I understand the consequences, delete data'}
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 };

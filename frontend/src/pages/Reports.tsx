@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Receipt } from '@/components/Receipt';
 import Pagination from '@/components/ui/Pagination';
 import API_URL from '@/config';
 
@@ -29,7 +30,7 @@ const Reports = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
-    date.setDate(1); // First day of current month
+    date.setDate(date.getDate() - 30); // Default to last 30 days
     return date.toISOString().split('T')[0];
   });
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
@@ -43,11 +44,22 @@ const Reports = () => {
   
   const reactToPrintFn = useReactToPrint({
     contentRef: componentRef,
-    onAfterPrint: () => {
-      // Optional: Restore pagination if needed, but keeping "View All" might be fine or just let user navigate
-      // For now, we won't auto-revert to page 1 to avoid jarring UX.
-    }
   });
+
+  // Individual Receipt Printing
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const receiptRef = useRef<HTMLDivElement>(null);
+  const handlePrintReceipt = useReactToPrint({
+    contentRef: receiptRef,
+  });
+
+  const onPrintReceipt = (tx: any) => {
+    setSelectedTransaction(tx);
+    // Small delay to allow state to update and component to render
+    setTimeout(() => {
+      handlePrintReceipt();
+    }, 100);
+  };
 
   const handlePrint = async () => {
     try {
@@ -358,6 +370,7 @@ const Reports = () => {
                       <th className="px-6 py-3 border-b">Receipt No</th>
                       <th className="px-6 py-3 border-b">Mode</th>
                       <th className="px-6 py-3 text-right border-b">Amount</th>
+                      <th className="px-6 py-3 text-right border-b no-print">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -370,6 +383,7 @@ const Reports = () => {
                           <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
                           <td className="px-6 py-4"><Skeleton className="h-4 w-16" /></td>
                           <td className="px-6 py-4"><Skeleton className="h-4 w-20 ml-auto" /></td>
+                          <td className="px-6 py-4"><Skeleton className="h-8 w-8 ml-auto" /></td>
                         </tr>
                       ))
                     ) : (
@@ -384,24 +398,38 @@ const Reports = () => {
                             <td className="px-6 py-4">{tx.receiptNo}</td>
                             <td className="px-6 py-4">{tx.mode}</td>
                             <td className="px-6 py-4 text-right font-bold text-green-600">₹{tx.amount}</td>
+                            <td className="px-6 py-4 text-right no-print">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => onPrintReceipt(tx)}
+                                title="Print Receipt"
+                              >
+                                <Printer className="h-4 w-4" />
+                              </Button>
+                            </td>
                           </tr>
                         ))}
                         <tr className="bg-slate-50 font-bold border-t-2 border-slate-200">
                           <td colSpan={4} className="px-6 py-4 text-right">Total Collection</td>
                           <td className="px-6 py-4 text-right text-green-700 text-lg">₹{totalCollection}</td>
+                          <td></td>
                         </tr>
                         <tr className="bg-slate-50 text-sm text-slate-600">
                           <td colSpan={4} className="px-6 py-2 text-right">Cash</td>
                           <td className="px-6 py-2 text-right">₹{modeTotals.Cash}</td>
+                          <td></td>
                         </tr>
                         <tr className="bg-slate-50 text-sm text-slate-600">
                           <td colSpan={4} className="px-6 py-2 text-right">UPI</td>
                           <td className="px-6 py-2 text-right">₹{modeTotals.UPI}</td>
+                          <td></td>
                         </tr>
                         {modeTotals.Cheque > 0 && (
                           <tr className="bg-slate-50 text-sm text-slate-600">
                             <td colSpan={4} className="px-6 py-2 text-right">Cheque</td>
                             <td className="px-6 py-2 text-right">₹{modeTotals.Cheque}</td>
+                            <td></td>
                           </tr>
                         )}
                       </>
@@ -476,6 +504,23 @@ const Reports = () => {
             totalPages={totalPages} 
             onPageChange={(p) => setPage(p)} 
           />
+        </div>
+      </div>
+
+      {/* Hidden Receipt for Printing */}
+      <div className="hidden">
+        <div ref={receiptRef}>
+          {selectedTransaction && (
+            <Receipt 
+              transaction={selectedTransaction} 
+              student={selectedTransaction.studentId} 
+              // We don't have full history here easily, but for a single receipt reprint, 
+              // showing just the current transaction or empty history is acceptable for now.
+              // Or we could fetch it, but that adds complexity. 
+              // Let's pass empty history for now as the Receipt component handles it gracefully.
+              history={[]}
+            />
+          )}
         </div>
       </div>
     </div>

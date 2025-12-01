@@ -229,3 +229,18 @@ export const clearSeedData = async (req: Request, res: Response) => {
     res.status(500).json({ message: (error as Error).message });
   }
 };
+
+export const clearStudents = async (req: Request, res: Response) => {
+  try {
+    await Student.deleteMany({});
+    await Transaction.deleteMany({});
+    await Expense.deleteMany({});
+    // Reset receipt counter if desired, or keep it. Let's keep it to avoid conflicts or reset it?
+    // Usually better to reset for a clean slate.
+    await Counter.deleteMany({ name: 'receiptNo' }); 
+    
+    res.json({ message: 'All students, transactions, and expenses cleared.' });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
