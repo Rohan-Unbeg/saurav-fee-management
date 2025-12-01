@@ -38,13 +38,18 @@ const Settings = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
   const fetchCourses = async () => {
     try {
+      setLoadingCourses(true);
       const response = await axios.get(`${API_URL}/api/courses`);
       setCourses(response.data);
     } catch (error) {
       console.error('Error fetching courses:', error);
       toast.error('Failed to load courses');
+    } finally {
+      setLoadingCourses(false);
     }
   };
 
@@ -155,29 +160,40 @@ const Settings = () => {
                 </tr>
               </thead>
               <tbody>
-                {courses.map((course) => (
-                  <tr key={course._id} className="bg-white border-b hover:bg-slate-50">
-                    <td className="px-6 py-4 font-medium">{course.name}</td>
-                    <td className="px-6 py-4">{course.duration}</td>
-                    <td className="px-6 py-4">₹{course.standardFee}</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(course)} aria-label="Edit Course">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                          onClick={() => handleDeleteClick(course._id)}
-                          aria-label="Delete Course"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {loadingCourses ? (
+                  [1, 2, 3].map((i) => (
+                    <tr key={i} className="border-b">
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-32" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-24" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-16" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-8 w-16 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : (
+                  courses.map((course) => (
+                    <tr key={course._id} className="bg-white border-b hover:bg-slate-50">
+                      <td className="px-6 py-4 font-medium">{course.name}</td>
+                      <td className="px-6 py-4">{course.duration}</td>
+                      <td className="px-6 py-4">₹{course.standardFee}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(course)} aria-label="Edit Course">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleDeleteClick(course._id)}
+                            aria-label="Delete Course"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -383,12 +399,17 @@ const UserManagement = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { user: currentUser } = useAuth();
 
+  const [loadingUsers, setLoadingUsers] = useState(true);
+
   const fetchUsers = async () => {
     try {
+      setLoadingUsers(true);
       const response = await axios.get(`${API_URL}/api/auth/users`);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
+    } finally {
+      setLoadingUsers(false);
     }
   };
 
@@ -457,29 +478,40 @@ const UserManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user._id} className="bg-white border-b hover:bg-slate-50">
-                    <td className="px-6 py-4 font-medium">{user.username}</td>
-                    <td className="px-6 py-4 capitalize">
-                      <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-blue-100 text-blue-700'}`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">{new Date(user.createdAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 text-right">
-                      {user._id !== currentUser?.id && !user.isSuperAdmin && (
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                          onClick={() => handleDeleteClick(user._id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {loadingUsers ? (
+                  [1, 2, 3].map((i) => (
+                    <tr key={i} className="border-b">
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-32" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-6 w-16 rounded-full" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-24" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-8 w-8 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : (
+                  users.map((user) => (
+                    <tr key={user._id} className="bg-white border-b hover:bg-slate-50">
+                      <td className="px-6 py-4 font-medium">{user.username}</td>
+                      <td className="px-6 py-4 capitalize">
+                        <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-blue-100 text-blue-700'}`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">{new Date(user.createdAt).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 text-right">
+                        {user._id !== currentUser?.id && !user.isSuperAdmin && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleDeleteClick(user._id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
