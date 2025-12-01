@@ -34,6 +34,8 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
     totalFeeCommitted: student?.totalFeeCommitted || 0,
     nextInstallmentDate: student?.nextInstallmentDate ? new Date(student.nextInstallmentDate).toISOString().split('T')[0] : '',
     photo: null as File | null,
+    initialPayment: 0,
+    paymentMode: 'Cash',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -88,7 +90,7 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
       if (value && !/^\d*$/.test(value)) return; // Only allow digits
       if (value.length > 10) return; // Max 10 digits
     }
-    if (name === 'totalFeeCommitted') {
+    if (name === 'totalFeeCommitted' || name === 'initialPayment') {
        if (value && !/^\d*$/.test(value)) return;
     }
 
@@ -127,6 +129,8 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
     if (!formData.courseId) newErrors.courseId = 'Course is required';
     if (!formData.batch.trim()) newErrors.batch = 'Batch is required';
     if (Number(formData.totalFeeCommitted) < 0) newErrors.totalFeeCommitted = 'Fee cannot be negative';
+    if (Number(formData.initialPayment) < 0) newErrors.initialPayment = 'Initial Payment cannot be negative';
+    if (Number(formData.initialPayment) > Number(formData.totalFeeCommitted)) newErrors.initialPayment = 'Initial Payment cannot exceed Total Fee';
 
     if (formData.dob) {
       const dobDate = new Date(formData.dob);
@@ -314,17 +318,64 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onSuccess, onCancel, stud
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="totalFeeCommitted">Total Fee (₹)</Label>
-        <Input 
-          id="totalFeeCommitted" 
-          name="totalFeeCommitted" 
-          value={formData.totalFeeCommitted} 
-          onChange={handleChange} 
-          className={errors.totalFeeCommitted ? 'border-red-500 bg-slate-100' : 'bg-slate-100'}
-          readOnly
-        />
-        {errors.totalFeeCommitted && <p className="text-xs text-red-500">{errors.totalFeeCommitted}</p>}
+      {!student && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="initialPayment">Initial Payment (₹)</Label>
+            <Input 
+              id="initialPayment" 
+              name="initialPayment" 
+              value={formData.initialPayment} 
+              onChange={handleChange} 
+              className={errors.initialPayment ? 'border-red-500' : ''}
+            />
+            {errors.initialPayment && <p className="text-xs text-red-500">{errors.initialPayment}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="paymentMode">Payment Mode</Label>
+            <select 
+              id="paymentMode" 
+              name="paymentMode" 
+              value={formData.paymentMode} 
+              onChange={handleChange}
+              className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
+            >
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="Cheque">Cheque</option>
+            </select>
+          </div>
+        </div>
+      )}
+
+      <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-slate-500">Total Fee:</span>
+          <span className="font-medium">₹{formData.totalFeeCommitted}</span>
+        </div>
+        
+        {/* Show Initial Payment for New Admission */}
+        {!student && (
+          <div className="flex justify-between items-center text-sm mt-1">
+            <span className="text-slate-500">Initial Payment:</span>
+            <span className="font-medium text-green-600">- ₹{formData.initialPayment}</span>
+          </div>
+        )}
+
+        {/* Show Total Paid for Existing Student */}
+        {student && (
+          <div className="flex justify-between items-center text-sm mt-1">
+            <span className="text-slate-500">Total Paid:</span>
+            <span className="font-medium text-green-600">- ₹{student.totalPaid}</span>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center text-base font-bold mt-2 pt-2 border-t border-slate-200">
+          <span>Pending Amount:</span>
+          <span className="text-red-600">
+            ₹{Math.max(0, Number(formData.totalFeeCommitted) - (student ? student.totalPaid : Number(formData.initialPayment)))}
+          </span>
+        </div>
       </div>
 
       <div className="space-y-2">

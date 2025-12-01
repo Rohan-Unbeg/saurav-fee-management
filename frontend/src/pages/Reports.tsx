@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useReactToPrint } from 'react-to-print';
-import { Printer } from 'lucide-react';
+import { Printer, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -100,6 +101,47 @@ const Reports = () => {
       console.error('Error preparing print:', error);
       setIsLoading(false);
       toast.error('Failed to prepare report for printing');
+    }
+  };
+
+  const handleExport = () => {
+    if (activeTab === 'collection') {
+      if (transactions.length === 0) {
+        toast.error('No transactions to export');
+        return;
+      }
+      const exportData = transactions.map(tx => ({
+        'Date': new Date(tx.date).toLocaleDateString(),
+        'Student Name': `${tx.studentId?.firstName} ${tx.studentId?.lastName}`,
+        'Receipt No': tx.receiptNo,
+        'Mode': tx.mode,
+        'Amount': tx.amount,
+        'Remark': tx.remark
+      }));
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Collection Report');
+      XLSX.writeFile(wb, 'Collection_Report.xlsx');
+    } else {
+      if (filteredStudents.length === 0) {
+        toast.error('No students to export');
+        return;
+      }
+      const exportData = filteredStudents.map(student => ({
+        'First Name': student.firstName,
+        'Last Name': student.lastName,
+        'Mobile': student.studentMobile,
+        'Course': student.courseId?.name || 'N/A',
+        'Batch': student.batch,
+        'Total Fee': student.totalFeeCommitted,
+        'Paid Amount': student.totalPaid,
+        'Pending Amount': student.pendingAmount,
+        'Status': student.status
+      }));
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, activeTab === 'defaulters' ? 'Defaulters' : 'Batch Report');
+      XLSX.writeFile(wb, `${activeTab === 'defaulters' ? 'Defaulters' : 'Batch'}_Report.xlsx`);
     }
   };
 
@@ -223,9 +265,14 @@ const Reports = () => {
             Collection
           </Button>
         </div>
-        <Button onClick={handlePrint} variant="outline" size="sm" className="w-full md:w-auto">
-          <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport} variant="outline" size="sm" className="w-full md:w-auto">
+            <Download className="mr-2 h-4 w-4" /> Export Excel
+          </Button>
+          <Button onClick={handlePrint} variant="outline" size="sm" className="w-full md:w-auto">
+            <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
+          </Button>
+        </div>
       </div>
 
       <div className="bg-primary/5 p-4 rounded-md text-primary text-sm mb-4 no-print space-y-4">

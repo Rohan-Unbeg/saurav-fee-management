@@ -76,11 +76,18 @@ export const seedDatabase = async (req: Request, res: Response) => {
       
       const totalFee = course.standardFee;
       let totalPaid = 0;
-      let status = getRandomElement(['Paid', 'Partial', 'Unpaid', 'Partial', 'Paid']); // Weighted slightly towards paying students
+      let status = getRandomElement(['Paid', 'Paid', 'Partial', 'Partial', 'Partial']); // No 'Unpaid' (0 payment) allowed
 
-      if (status === 'Paid') totalPaid = totalFee;
-      else if (status === 'Partial') totalPaid = Math.floor(Math.random() * (totalFee - 500) / 500) * 500 + 500; // Random multiple of 500
-      else totalPaid = 0;
+      // Calculate payments based on status
+      if (status === 'Paid') {
+        totalPaid = totalFee;
+      } else {
+        // Partial: Pay between 20% and 80% of the fee
+        // Ensure MINIMUM payment of 1000 or 20%
+        const minPay = Math.max(1000, totalFee * 0.2);
+        const maxPay = totalFee * 0.8;
+        totalPaid = Math.floor((Math.random() * (maxPay - minPay) + minPay) / 500) * 500; // Round to nearest 500
+      }
 
       const pendingAmount = totalFee - totalPaid;
       
@@ -98,29 +105,55 @@ export const seedDatabase = async (req: Request, res: Response) => {
         totalFeeCommitted: totalFee,
         totalPaid,
         pendingAmount,
-        status,
+        status: pendingAmount <= 0 ? 'Paid' : (totalPaid > 0 ? 'Partial' : 'Unpaid'),
+        isDeleted: false,
         nextInstallmentDate: pendingAmount > 0 ? new Date(new Date().setDate(new Date().getDate() + Math.floor(Math.random() * 30))) : undefined // Next 30 days
       });
       students.push(student);
 
-      // Create Transaction(s)
+      // Create Transactions
       if (totalPaid > 0) {
-        // If paid fully, maybe 1 or 2 transactions
-        const numTx = status === 'Paid' && Math.random() > 0.5 ? 2 : 1;
-        let remainingPaid = totalPaid;
+        let remainingToRecord = totalPaid;
+        
+        // 1. Initial Payment (Admission Fee) - usually 20-40% or 1000-2000
+        const initialPayment = Math.min(remainingToRecord, Math.floor((Math.random() * 2000 + 1000) / 500) * 500);
+        
+        await Transaction.create({
+          studentId: (student as any)._id,
+          amount: initialPayment,
+          mode: getRandomElement(['Cash', 'UPI', 'Cash', 'UPI', 'Cheque']), // More Cash/UPI
+          receiptNo: `REC-ADM-${Math.floor(10000 + Math.random() * 90000)}`,
+          date: admissionDate,
+          remark: 'Admission Fee'
+        });
 
-        for (let j = 0; j < numTx; j++) {
-          const amount = j === numTx - 1 ? remainingPaid : Math.floor(remainingPaid / 2);
-          remainingPaid -= amount;
+        remainingToRecord -= initialPayment;
+
+        // 2. Subsequent Installments
+        if (remainingToRecord > 0) {
+          const numInstallments = Math.floor(Math.random() * 3) + 1; // 1 to 3 installments
           
-          await Transaction.create({
-            studentId: (student as any)._id,
-            amount,
-            mode: getRandomElement(['Cash', 'UPI', 'Cheque']),
-            receiptNo: `REC-${Math.floor(1000 + Math.random() * 9000)}`,
-            date: getRandomDate(admissionDate, new Date()),
-            remark: j === 0 ? 'Admission Fee' : 'Installment'
-          });
+          for (let k = 0; k < numInstallments; k++) {
+            if (remainingToRecord <= 0) break;
+
+            const installmentAmount = k === numInstallments - 1 ? remainingToRecord : Math.floor((remainingToRecord / numInstallments) / 500) * 500;
+             // Ensure we don't pay 0 in an installment loop if rounding caused it, just take whatever is left
+            const finalAmount = installmentAmount <= 0 ? remainingToRecord : installmentAmount;
+            
+            // Random date after admission but before now
+            const installmentDate = getRandomDate(admissionDate, new Date());
+
+            await Transaction.create({
+              studentId: (student as any)._id,
+              amount: finalAmount,
+              mode: getRandomElement(['Cash', 'UPI']),
+              receiptNo: `REC-INST-${Math.floor(10000 + Math.random() * 90000)}`,
+              date: installmentDate,
+              remark: `Installment #${k + 1}`
+            });
+
+            remainingToRecord -= finalAmount;
+          }
         }
       }
     }
@@ -146,9 +179,10 @@ export const seedDatabase = async (req: Request, res: Response) => {
         batch: getRandomElement(batches),
         admissionDate: new Date(),
         totalFeeCommitted: totalFee,
-        totalPaid: 0,
-        pendingAmount: totalFee,
-        status: 'Unpaid',
+        totalPaid: 500,
+        pendingAmount: totalFee - 500,
+        status: 'Partial',
+        isDeleted: false,
         nextInstallmentDate: new Date(new Date().setDate(new Date().getDate() + 7))
       });
 

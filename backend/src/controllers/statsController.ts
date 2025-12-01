@@ -5,7 +5,7 @@ import Expense from '../models/Expense';
 
 export const getStats = async (req: Request, res: Response) => {
   try {
-    const totalStudents = await Student.countDocuments();
+    const totalStudents = await Student.countDocuments({ isDeleted: false });
 
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
@@ -18,7 +18,7 @@ export const getStats = async (req: Request, res: Response) => {
 
     const todaysCollection = todaysTransactions.reduce((acc, curr) => acc + curr.amount, 0);
 
-    const students = await Student.find();
+    const students = await Student.find({ isDeleted: false });
     const totalPending = students.reduce((acc, curr) => acc + curr.pendingAmount, 0);
 
     // Calculate Total Collection (All Time)
@@ -67,6 +67,7 @@ export const getStats = async (req: Request, res: Response) => {
     nextWeek.setHours(23, 59, 59, 999);
 
     const upcomingDues = await Student.find({
+      isDeleted: false,
       nextInstallmentDate: { $gte: today, $lte: nextWeek },
       pendingAmount: { $gt: 0 }
     }).select('firstName lastName courseId pendingAmount nextInstallmentDate').populate('courseId', 'name');

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Student from '../models/Student';
 import Course from '../models/Course';
+import Transaction from '../models/Transaction';
 import { logAudit } from '../utils/auditLogger';
 import { AuthRequest } from '../middleware/authMiddleware';
 
@@ -91,17 +92,34 @@ export const createStudent = async (req: Request, res: Response) => {
     }
 
     const finalFee = Number(totalFeeCommitted) || course.standardFee;
-    const pendingAmount = finalFee; // Initially pending is total
+    const initialPayment = Number(req.body.initialPayment) || 0;
+    const paymentMode = req.body.paymentMode || 'Cash';
+    
+    const pendingAmount = finalFee - initialPayment;
 
     const student = new Student({
       firstName, lastName, photoUrl, dob, gender, address,
       studentMobile, parentMobile, courseId, batch,
-      admissionDate, totalFeeCommitted: finalFee, totalPaid: 0, pendingAmount,
-      status: 'Unpaid',
+      admissionDate, totalFeeCommitted: finalFee, 
+      totalPaid: initialPayment, 
+      pendingAmount,
+      status: pendingAmount <= 0 ? 'Paid' : (initialPayment > 0 ? 'Partial' : 'Unpaid'),
       nextInstallmentDate
     });
 
     const createdStudent = await student.save();
+    
+    // Create Transaction for Initial Payment
+    if (initialPayment > 0) {
+      await Transaction.create({
+        studentId: createdStudent._id,
+        amount: initialPayment,
+        mode: paymentMode,
+        receiptNo: `REC-ADM-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date(),
+        remark: 'Admission Fee'
+      });
+    }
     
     await logAudit('CREATE', 'Student', (createdStudent._id as any).toString(), (req as AuthRequest).user?.id, { name: `${createdStudent.firstName} ${createdStudent.lastName}` });
 

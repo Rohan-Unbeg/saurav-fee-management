@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import axios from 'axios';
-import { Plus, Search, Edit, Trash2 /*, MessageCircle*/ } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Download /*, MessageCircle*/ } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,31 @@ const Students = () => {
     }
   };
 
+  const handleExport = () => {
+    if (students.length === 0) {
+      toast.error('No students to export');
+      return;
+    }
+
+    const exportData = students.map(student => ({
+      'First Name': student.firstName,
+      'Last Name': student.lastName,
+      'Mobile': student.studentMobile,
+      'Course': student.courseId?.name || 'N/A',
+      'Batch': student.batch,
+      'Admission Date': new Date(student.admissionDate).toLocaleDateString(),
+      'Total Fee': student.totalFeeCommitted,
+      'Paid Amount': student.totalPaid,
+      'Pending Amount': student.pendingAmount,
+      'Status': student.status
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Students');
+    XLSX.writeFile(wb, 'Students_Report.xlsx');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -83,9 +109,14 @@ const Students = () => {
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Students</h2>
           <p className="text-slate-500">Manage your student records.</p>
         </div>
-        <Button onClick={() => setIsAdmissionOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> New Admission
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" /> Export Excel
+          </Button>
+          <Button onClick={() => setIsAdmissionOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> New Admission
+          </Button>
+        </div>
       </div>
 
       <Card>
