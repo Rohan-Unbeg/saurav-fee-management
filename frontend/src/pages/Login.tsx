@@ -69,10 +69,18 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex items-center justify-center p-8 bg-slate-50">
-        <div className="w-full max-w-[400px] space-y-8">
+      <div className="flex flex-col items-center justify-center p-6 md:p-8 bg-slate-50 min-h-screen lg:min-h-auto relative">
+        <div className="w-full max-w-[400px] space-y-8 z-10">
+            {/* Mobile Branding */}
+            <div className="lg:hidden text-center mb-8 space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight text-primary">
+                Saurav Computer
+              </h1>
+              <p className="text-sm text-slate-500 font-medium">Fee Management System</p>
+            </div>
+
             <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900">Welcome back</h2>
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Welcome back</h2>
                 <p className="text-sm text-slate-500">Please enter your details to sign in.</p>
             </div>
 
@@ -124,6 +132,11 @@ const Login = () => {
             <div className="text-center text-xs text-slate-400 mt-8">
               <p>Protected by secure authentication.</p>
             </div>
+        </div>
+
+        {/* Mobile Footer */}
+        <div className="lg:hidden absolute bottom-6 text-center w-full text-xs text-slate-400">
+          <p>© {new Date().getFullYear()} Saurav Computer. All rights reserved.</p>
         </div>
       </div>
     </div>

@@ -66,8 +66,8 @@ const Dashboard = () => {
       title: "Today's Collection",
       value: `₹${stats.todaysCollection.toLocaleString()}`,
       icon: IndianRupee,
-      color: "text-secondary",
-      bg: "bg-secondary/10",
+      color: "text-blue-600",
+      bg: "bg-blue-100",
     },
     {
       title: "Total Pending Fees",

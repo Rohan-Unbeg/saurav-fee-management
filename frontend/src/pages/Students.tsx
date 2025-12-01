@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar } from '@/components/ui/Avatar';
 import Modal from '@/components/ui/modal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import AdmissionForm from '@/components/AdmissionForm';
@@ -166,14 +167,13 @@ const Students = () => {
                       <tr key={student._id} className="bg-white border-b hover:bg-slate-50">
                         <td className="px-6 py-4 font-medium text-slate-900">
                           <div className="flex items-center gap-3">
-                            {student.photoUrl && (
-                              <img 
-                                src={student.photoUrl.startsWith('http') ? student.photoUrl : `${API_URL}${student.photoUrl}`} 
-                                alt={student.firstName} 
-                                className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => setSelectedImage(student.photoUrl)}
-                              />
-                            )}
+                            <Avatar 
+                              src={student.photoUrl ? (student.photoUrl.startsWith('http') ? student.photoUrl : `${API_URL}${student.photoUrl}`) : null}
+                              alt={student.firstName}
+                              fallback={`${student.firstName[0]}${student.lastName ? student.lastName[0] : ''}`}
+                              className="w-8 h-8 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => student.photoUrl && setSelectedImage(student.photoUrl)}
+                            />
                             {student.firstName} {student.lastName}
                           </div>
                         </td>
