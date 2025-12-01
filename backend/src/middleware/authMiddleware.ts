@@ -10,7 +10,9 @@ export interface AuthRequest extends Request {
   user?: any;
 }
 
-export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
+import User from '../models/User';
+
+export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -19,7 +21,14 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    // Check if user still exists in DB
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: 'User no longer exists.' });
+    }
+
     req.user = decoded;
     next();
   } catch (error: any) {
