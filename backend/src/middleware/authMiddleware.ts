@@ -33,6 +33,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     next();
   } catch (error: any) {
     console.error('JWT Verification Error:', error.message);
-    res.status(403).json({ message: 'Invalid token.', error: error.message });
+    // Return 401 so frontend interceptor logs out the user
+    res.status(401).json({ message: 'Invalid token.', error: error.message });
   }
 };
